@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EnableJpaRepositories
-public class GestionDesCongesApplication {
+public class  GestionDesCongesApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GestionDesCongesApplication.class, args);
