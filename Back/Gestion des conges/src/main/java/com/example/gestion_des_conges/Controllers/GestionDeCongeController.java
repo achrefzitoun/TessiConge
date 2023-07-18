@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/conge")
 public class GestionDeCongeController {
 
     private final IRoleServices roleServices;
@@ -28,7 +27,7 @@ public class GestionDeCongeController {
 
     private final ITypeCongeServices typeCongeServices;
 
-    @GetMapping("/")
+    @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String index () {
         return "Home page" ;
     }
