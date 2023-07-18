@@ -1,12 +1,11 @@
 package com.example.gestion_des_conges.Controllers;
 
+import com.example.gestion_des_conges.Entities.Employee;
 import com.example.gestion_des_conges.Entities.Role;
 import com.example.gestion_des_conges.Services.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,7 +16,7 @@ public class GestionDeCongeController {
 
     private final ICongeServices congeServices;
 
-    private final IEmplyeeServices emplyeeServices;
+    private final IEmployeeServices employeeServices;
 
     private final IJourFerieServices jourFerieServices;
 
@@ -32,6 +31,9 @@ public class GestionDeCongeController {
         return "Home page" ;
     }
 
+
+
+    // ----- ROLE -----
     @PostMapping("/NewRole")
     public Role addRole(@RequestBody Role role) {
         return roleServices.addRole(role);
@@ -60,5 +62,31 @@ public class GestionDeCongeController {
 
 
 
+
+    // ----- Employee -----
+    @PostMapping("/NewEmployee")
+    public Employee addEmployee(@RequestBody Employee employee) {
+        return employeeServices.addEmployee(employee);
+    }
+
+    @PutMapping("/UpdateEmployee")
+    public Employee updateEmployee(@RequestBody Employee employee) {
+        return employeeServices.updateEmployee(employee);
+    }
+
+    @DeleteMapping("/DeleteEmployee/{id}")
+    public void deleteEmployee(@PathVariable("id") int id) {
+        employeeServices.deleteEmployee(id);
+    }
+
+    @GetMapping("/ViewEmployee/{id}")
+    public Employee retrieveEmployee(@PathVariable("id") int id) {
+        return employeeServices.retrieveEmployee(id);
+    }
+
+    @GetMapping("/ViewEmployee")
+    public List<Employee> retrieveAllEmployee() {
+        return employeeServices.retrieveAllEmployee();
+    }
 
 }
