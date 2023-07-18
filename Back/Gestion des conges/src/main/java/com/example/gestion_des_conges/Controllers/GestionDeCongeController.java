@@ -28,6 +28,11 @@ public class GestionDeCongeController {
 
     private final ITypeCongeServices typeCongeServices;
 
+    @GetMapping("/")
+    public String index () {
+        return "Home page" ;
+    }
+
     @PostMapping("/NewRole")
     public Role addRole(@RequestBody Role role) {
         return roleServices.addRole(role);
@@ -52,5 +57,9 @@ public class GestionDeCongeController {
     public List<Role> retrieveAllRoles() {
         return roleServices.retrieveAllRoles();
     }
+
+
+
+
 
 }
