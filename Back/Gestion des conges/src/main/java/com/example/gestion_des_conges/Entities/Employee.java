@@ -18,6 +18,8 @@ public class Employee implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer idEmp;
 
+    String email;
+
     String username;
 
     String motDePass;

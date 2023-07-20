@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:remove="all">Template for HTML email</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <p>Cher <span style="font-weight: bold" th:text="${demandeur}">null</span>,</p>
+
+        <p>Je tiens à vous informer que votre demande de congé a été enregistrée avec succès. Votre demande de congé pour <span style="font-weight: bold" th:text="${duree}">null</span> jours, commençant le <span style="font-weight: bold" th:text="${datedebut}">null</span> et se terminant le <span style="font-weight: bold" th:text="${datefin}">null</span>, a été prise en compte.</p>
+
+        <p>Notre équipe traitera votre demande dans les plus brefs délais. Vous serez informé(e) dès que la décision concernant votre demande de congé sera prise. Veuillez noter que toutes les demandes de congé sont examinées en tenant compte des besoins opérationnels de l'entreprise, mais nous ferons de notre mieux pour répondre à votre demande.</p>
+
+        <p>En attendant, veuillez planifier vos activités personnelles en conséquence, en gardant à l'esprit que votre demande de congé est en cours de traitement. Si vous avez des questions supplémentaires ou des préoccupations, n'hésitez pas à nous   contacter ou à vous adresser à l'équipe des ressources humaines.</p>
+
+        <p>Nous vous remercions de votre compréhension et nous vous souhaitons un congé agréable et reposant.</p>
+
+        <p>
+            Cordialement.
+
+        </p>
+    </body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Informations sur la demande de congé</title>
+</head>
+<body>
+<p>Cher <span style="font-weight: bold" th:text="${superviseur}">null</span>,</p>
+
+<p>J'espère que vous allez bien. Je tenais à vous informer qu'un de vos employés, [Nom de l'employé], a soumis une demande de congé.</p>
+
+<p>Voici les détails de la demande :</p>
+
+<ul>
+    <li>Nom de l'employé : <span style="font-weight: bold" th:text="${demandeur}">null</span></li>
+    <li>Durée du congé demandé : <span style="font-weight: bold" th:text="${duree}">null</span></li>
+    <li>Date de début : <span style="font-weight: bold" th:text="${datedebut}">null</span></li>
+    <li>Date de fin : <span style="font-weight: bold" th:text="${datefin}">null</span></li>
+</ul>
+
+<p>J'ai enregistré la demande de congé de l'employé et elle est actuellement en cours de traitement par l'équipe des ressources humaines. Nous tiendrons compte des besoins opérationnels de l'entreprise lors de l'examen de cette demande et nous vous tiendrons informé(e) de toute décision prise à cet égard.</p>
+
+<p>Veuillez prendre en compte cette demande de congé lors de la planification des tâches et de la répartition du travail au sein de votre équipe pendant la période spécifiée.</p>
+
+<p>Si vous avez des questions ou des préoccupations supplémentaires concernant cette demande, n'hésitez pas à me contacter. Je me ferai un plaisir de vous aider.</p>
+
+<p>Merci de votre attention et de votre collaboration.</p>
+
+<p>Cordialement.</p>
+</body>
+</html>

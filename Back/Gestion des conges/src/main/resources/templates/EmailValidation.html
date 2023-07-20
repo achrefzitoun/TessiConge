@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:remove="all">Template for HTML email</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <p>
+            Bonjour,<span style="font-weight: bold" th:text="${namedemandeur}">Peter Static</span>!
+
+        </p>
+        <p>Merci de m'avoir informé de votre demande de congé du <span style="font-weight: bold" th:text="${datedebut}">null</span> au <span style="font-weight: bold" th:text="${datefin}">null</span>. Je prends note de votre requête et je comprends l'importance de prendre du temps pour se reposer et se ressourcer.</p>
+        <p>Après avoir examiné votre demande, je suis heureux de vous informer que votre congé a été approuvé. Je suis conscient de vos responsabilités au sein de l'équipe et je suis confiant que vous avez pris les mesures nécessaires pour assurer une transition en douceur pendant votre absence.</p>
+        <p>Pendant votre congé, veuillez vous assurer d'être joignable par e-mail en cas d'urgence ou de question nécessitant votre attention. Cependant, je vous encourage également à prendre du temps pour vous détendre et vous déconnecter du travail autant que possible afin de revenir reposé et rafraîchi.</p>
+        <p>N'hésitez pas à me contacter si vous avez des questions supplémentaires ou si vous avez besoin d'un soutien supplémentaire avant votre départ. Je suis là pour vous aider.</p>
+        <p>Profitez pleinement de votre congé et je suis impatient de vous retrouver à votre retour.</p>
+        <br>
+        <p>
+            Cordialement, <br/>
+            <em><span style="font-weight: bold" th:text="${namevalidateur}">null</span></em>
+        </p>
+    </body>
+</html>
