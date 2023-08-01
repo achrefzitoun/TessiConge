@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -57,6 +58,8 @@ public class CongeServices implements ICongeServices {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
+    @Value("${files.file.path}")
+    private String files;
 
     @Override
     public void sendEmail(Mail mail, String templateName) throws MessagingException{
@@ -257,13 +260,13 @@ public class CongeServices implements ICongeServices {
         if(dateDebut!=null && dateFin!=null){
             conges.addAll(congeRepository.findByDateDebutBetweenAndEtat(dateDebut, dateFin, Etat.Accepte));
             sheet = workbook.createSheet("Congé accepter" + dateDebut.getMonth() + "-" + dateDebut.getDayOfMonth() + "_" + dateFin.getMonth() + "-" + dateFin.getDayOfMonth());
-            fileName = "D:\\Stage 2 Esprit\\Back\\Gestion des conges\\src\\main\\resources\\files\\Congé_accepter" +  dateDebut.getMonth() + "-" + dateDebut.getDayOfMonth() + "_" + dateFin.getMonth() + "-" + dateFin.getDayOfMonth() + ".xlsx";
+            fileName = files + "\\Congé_accepter" +  dateDebut.getMonth() + "-" + dateDebut.getDayOfMonth() + "_" + dateFin.getMonth() + "-" + dateFin.getDayOfMonth() + ".xlsx";
         }
 
         else {
             conges.addAll(congeRepository.findByEtat(Etat.Accepte));
             sheet = workbook.createSheet("Tous les congé accepter");
-            fileName = "D:\\Stage 2 Esprit\\Back\\Gestion des conges\\src\\main\\resources\\files\\Tous_les_congés_accepter"+".xlsx";
+            fileName = files + " \\Tous_les_congés_accepter"+".xlsx";
         }
 
         Row headerRow = sheet.createRow(0);
