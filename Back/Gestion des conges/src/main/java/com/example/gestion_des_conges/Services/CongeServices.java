@@ -77,31 +77,35 @@ public class CongeServices implements ICongeServices {
         Conge conge = congeRepository.findById(idConge).orElse(null);
 
         if(conge!=null){
+
             Employee demandeur = employeeRepository.findById(conge.getDemandeur().getIdEmp()).orElse(null);
 
             //Employee validateur = employeeRepository.findEmployeeByUsername(principal.getName());
             Employee validateur = employeeRepository.findById(1).orElse(null);
 
             if(conge.getEtat().toString().equals(Etat.Annule.toString())){
-                return new ResponseEntity<String>("Congé est déja annulé .", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Congé est déja annulé .", HttpStatus.BAD_REQUEST);
+            }
+            if(!conge.getEtat().equals(Etat.En_Attente)){
+                return new ResponseEntity<>("La réponse est déja envoyée  .", HttpStatus.BAD_REQUEST);
             }
             if(demandeur == null || validateur == null){
-                return new ResponseEntity<String>("Mauvaise demande.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Mauvaise demande.", HttpStatus.BAD_REQUEST);
             }
             if(demandeur.getSuperviseur()!=validateur){
-                return new ResponseEntity<String>("L'employée n'est pas dans votre entité.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("L'employée n'est pas dans votre entité.", HttpStatus.BAD_REQUEST);
             }
             if (!validateur.getRole().getNomRole().equals("admin") && !validateur.getRole().getNomRole().equals("superviseur")) {
-                return new ResponseEntity<String>("Accès refusé. Vous n'avez pas les permissions nécessaires.", HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>("Accès refusé. Vous n'avez pas les permissions nécessaires.", HttpStatus.FORBIDDEN);
             }
 
             if(etat==null || etat.toString().equals("En_Attente")){
-                return new ResponseEntity<String>("Donner la nouvelle état du congé.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Donner la nouvelle état du congé.", HttpStatus.BAD_REQUEST);
             }
 
             if(etat.toString().equals("Refuse")){
                 if(motifRefus==null){
-                    return new ResponseEntity<String>("Réponse non valide. Vous n'avez pas donner le motif de refus.", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>("Réponse non valide. Vous n'avez pas donner le motif de refus.", HttpStatus.BAD_REQUEST);
                 }
                 if (motifRefus.getIdMotif() != null) {
                     if(motifRefusRepository.findById(motifRefus.getIdMotif()).isPresent()){
@@ -116,9 +120,11 @@ public class CongeServices implements ICongeServices {
                         }
                     }
                 }
+
                 if(motifRefus.getDescription()==null){
-                    return new ResponseEntity<String>("Donner une description de refus.", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>("Donner une description de refus.", HttpStatus.BAD_REQUEST);
                 }
+
                 motifRefusRepository.save(motifRefus);
                 conge.setMotifRefus(motifRefus);
             }
@@ -126,13 +132,14 @@ public class CongeServices implements ICongeServices {
             if (motifRefus.getTypeMotif() == null ) {
                 motifRefus.setTypeMotif(TypeMotif.Autre);
             }
+
             conge.setDateValidation(LocalDateTime.now());
             conge.setEtat(etat);
             conge.setValidateur(validateur);
 
             congeRepository.save(conge);
 
-            ///////////////////////////////////// Mail validation (Mail Validation)
+            ///////////////////////////////////// Mail validation (Mail Validation) + Mail de refus (Mail Refus)
 
             Mail mail = new Mail();
 
@@ -156,12 +163,12 @@ public class CongeServices implements ICongeServices {
                 sendEmail(mail, "EmailRefus.html");
             }
 
-            return new ResponseEntity<String>("Conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom()
+            return new ResponseEntity<>("Conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom()
                     +" est : " + etat.toString() , HttpStatus.OK);
         }
 
         else {
-            return new ResponseEntity<String>("Conge indisponnible.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Conge indisponnible.", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -173,19 +180,19 @@ public class CongeServices implements ICongeServices {
         TypeConge typeConge = typeCongeRepository.findById(idTypeConge).orElse(null);
 
         if (!validateur.getRole().getNomRole().equals("admin") && !validateur.getRole().getNomRole().equals("superviseur")) {
-            return new ResponseEntity<String>("Accès refusé. Vous n'avez pas les permissions nécessaires.", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("Accès refusé. Vous n'avez pas les permissions nécessaires.", HttpStatus.FORBIDDEN);
         }
         if(conge==null){
-            return new ResponseEntity<String>("Mauvaise demande.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Mauvaise demande.", HttpStatus.BAD_REQUEST);
         }
         if(demandeur== null){
-            return new ResponseEntity<String>("Donner un demandeur du congé.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Donner un demandeur du congé.", HttpStatus.BAD_REQUEST);
         }
         if(typeConge== null){
-            return new ResponseEntity<String>("Donner le type de congé.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Donner le type de congé.", HttpStatus.BAD_REQUEST);
         }
         if(!demandeur.getPolitique().getTypeConge().contains(typeConge)){
-            return new ResponseEntity<String>("Ce employée ne peux pas bénéficer de ce type de congé.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Ce employée ne peux pas bénéficer de ce type de congé.", HttpStatus.BAD_REQUEST);
         }
 
         conge.setEtat(Etat.En_Attente);
@@ -201,7 +208,7 @@ public class CongeServices implements ICongeServices {
         maildemandeur.setMailTo(demandeur.getEmail());
         maildemandeur.setSubject("Demande de congé");
 
-        Map<String, Object> modeldemandeur = new HashMap<String, Object>();
+        Map<String, Object> modeldemandeur = new HashMap<>();
 
         modeldemandeur.put("demandeur", demandeur.getNom() + " " + demandeur.getPrenom());
         modeldemandeur.put("duree", Duration.between(conge.getDateDebut(), conge.getDateFin()).toDays());
@@ -234,7 +241,7 @@ public class CongeServices implements ICongeServices {
             sendEmail(mailvalidateur, "EmailInformation.html");
         }
 
-        return new ResponseEntity<String>("Conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom()
+        return new ResponseEntity<>("Conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom()
                 +" est enregistré " , HttpStatus.OK);
     }
 
@@ -252,6 +259,7 @@ public class CongeServices implements ICongeServices {
             sheet = workbook.createSheet("Congé accepter" + dateDebut.getMonth() + "-" + dateDebut.getDayOfMonth() + "_" + dateFin.getMonth() + "-" + dateFin.getDayOfMonth());
             fileName = "D:\\Stage 2 Esprit\\Back\\Gestion des conges\\src\\main\\resources\\files\\Congé_accepter" +  dateDebut.getMonth() + "-" + dateDebut.getDayOfMonth() + "_" + dateFin.getMonth() + "-" + dateFin.getDayOfMonth() + ".xlsx";
         }
+
         else {
             conges.addAll(congeRepository.findByEtat(Etat.Accepte));
             sheet = workbook.createSheet("Tous les congé accepter");
@@ -294,7 +302,7 @@ public class CongeServices implements ICongeServices {
              e.printStackTrace();
         }
 
-        return new ResponseEntity<String>("Le fichier " , HttpStatus.OK);
+        return new ResponseEntity<>("Le fichier est enregistré" , HttpStatus.OK);
     }
 
 }

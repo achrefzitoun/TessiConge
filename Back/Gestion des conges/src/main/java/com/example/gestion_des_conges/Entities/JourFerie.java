@@ -1,12 +1,12 @@
 package com.example.gestion_des_conges.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -26,8 +26,9 @@ public class JourFerie implements Serializable {
 
     LocalDateTime dateFin;
 
-    LocalDateTime annee;
+    Integer annee;
 
     @ManyToMany
+    @JsonIgnore
     List<Politique> politiques;
 }

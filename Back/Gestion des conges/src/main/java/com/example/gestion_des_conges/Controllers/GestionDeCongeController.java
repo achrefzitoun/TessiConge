@@ -1,20 +1,21 @@
 package com.example.gestion_des_conges.Controllers;
 
-import com.example.gestion_des_conges.Configurations.Mail;
 import com.example.gestion_des_conges.Entities.*;
 import com.example.gestion_des_conges.Services.*;
+import de.jollyday.Holiday;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -81,5 +82,15 @@ public class GestionDeCongeController {
         return congeServices.affectationConge(conge,idDemandeur,idTypeConge);
     }
 
+    @GetMapping("/getHolidaysForCountry/{countryCode}/{year}")
+    public Set<Holiday> getHolidaysForCountry(@PathVariable("countryCode") String countryCode, @PathVariable("year") int year) {
+        HolidayManager holidayManager = HolidayManager.getInstance(HolidayCalendar.valueOf(countryCode));
+        return holidayManager.getHolidays(year);
+    }
+
+    @PutMapping("/JourFerie")
+    public void miseAJourJourFerie() throws IOException {
+        jourFerieServices.miseAJourJourFerie();
+    }
 
 }

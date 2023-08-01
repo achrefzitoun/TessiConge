@@ -29,7 +29,7 @@ public class Conge implements Serializable {
     Integer duree;
 
     @Enumerated(EnumType.STRING)
-    Etat etat;
+    Etat etat = Etat.En_Attente;
 
     String description;
 

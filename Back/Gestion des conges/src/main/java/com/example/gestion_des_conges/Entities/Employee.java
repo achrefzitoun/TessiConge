@@ -1,5 +1,6 @@
 package com.example.gestion_des_conges.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -41,12 +42,15 @@ public class Employee implements Serializable {
     Role role;
 
     @ManyToOne
+    @JsonIgnore
     Employee superviseur;
 
     @OneToMany(mappedBy = "demandeur")
+    @JsonIgnore
     List<Conge> listDemande;
 
     @OneToMany(mappedBy = "validateur")
+    @JsonIgnore
     List<Conge> listValidation;
     @ManyToOne
     Politique politique;

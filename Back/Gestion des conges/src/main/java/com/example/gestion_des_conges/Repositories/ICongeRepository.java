@@ -13,4 +13,6 @@ public interface ICongeRepository extends CrudRepository<Conge, Integer> {
     List<Conge> findByDateDebutBetweenAndEtat(LocalDateTime datedeb, LocalDateTime datefin, Etat etat);
 
     List<Conge> findByEtat(Etat etat);
+
+
 }
