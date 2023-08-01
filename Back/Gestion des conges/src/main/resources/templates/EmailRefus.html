@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:remove="all">Refus de demande de congé</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <p>
+            Bonjour,<span style="font-weight: bold" th:text="${namedemandeur}">Peter Static</span>!
+        </p>
+        <p>Je vous écris pour vous informer que votre demande de congé du <span style="font-weight: bold" th:text="${datedebut}">null</span> au <span style="font-weight: bold" th:text="${datefin}">null</span> a été soigneusement examinée.</p>
+        <p>Après avoir pris en compte les besoins de l'équipe et les engagements en cours, nous avons pris la décision de ne pas approuver votre demande de congé pour les dates spécifiées.</p>
+        <p>Nous comprenons l'importance de prendre du temps pour se reposer, mais malheureusement, compte tenu de la situation actuelle du projet et des contraintes opérationnelles, nous ne pouvons pas accorder de congé pour les dates demandées.</p>
+        <p>Nous vous encourageons à discuter avec votre responsable pour discuter d'options de congé alternatives ou pour planifier votre congé à un moment plus opportun pour l'équipe.</p>
+        <p>Nous sommes conscients de votre dévouement au travail et apprécions vos efforts. Votre contribution est inestimable pour l'équipe et nous espérons que vous comprendrez la nécessité de cette décision.</p>
+        <p>Si vous avez des questions ou des préoccupations concernant cette décision, n'hésitez pas à me contacter. Je suis ouvert à la discussion.</p>
+        <p style="font-weight: bold">Motif de refus : </p>
+        <span th:text="${motifrefus}"></span>
+        <p>Merci de votre compréhension.</p>
+        <br>
+        <p>
+            Cordialement, <br/>
+            <em><span style="font-weight: bold" th:text="${namevalidateur}">null</span></em>
+        </p>
+    </body>
+</html>

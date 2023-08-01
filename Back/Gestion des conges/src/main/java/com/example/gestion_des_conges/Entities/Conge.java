@@ -20,7 +20,7 @@ public class Conge implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer idConge;
 
-    LocalDateTime dateDemance;
+    LocalDateTime dateDemande = LocalDateTime.now();
 
     LocalDateTime dateDebut;
 
@@ -29,11 +29,13 @@ public class Conge implements Serializable {
     Integer duree;
 
     @Enumerated(EnumType.STRING)
-    Etat etat;
+    Etat etat = Etat.En_Attente;
 
     String description;
 
     byte[] pieceJointe;
+
+    LocalDateTime dateValidation;
 
     @ManyToOne
     TypeConge typeConge;
