@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -91,23 +92,35 @@ public class DemandeService implements  IDemandeService{
 
         conge.setTypeConge(typeConge);
         conge.setDemandeur(e);
+
         conge.setValidateur(e.getSuperviseur());
 
+        if(typeConge.getNatureType().equals(NatureType.Speciale)){
+          /*  if(typeConge.getNbrJours()==1){
+                conge.setDateFin(conge.getDateDebut().plusDays(1));
+                conge.setDuree(1);
+            }
+            else if(typeConge.getNbrJours()==62){
+                conge.setDateFin(conge.getDateDebut().plusMonths(2));
+                long jours = ChronoUnit.DAYS.between(conge.getDateDebut(), conge.getDateDebut().plusMonths(2));
+                conge.setDuree(jours);
+            }
+            else if (typeConge.getNbrJours()==0.083) {
+                conge.setDateFin(conge.getDateDebut().plusHours(2));
+                conge.setDuree(0.083F);
 
-        if(typeConge.getNbrJours()==1){
-            conge.setDateFin(conge.getDateDebut().plusDays(1));
-            conge.setDuree(1);
-        }
-        else if(typeConge.getNbrJours()==62){
-            conge.setDateFin(conge.getDateDebut().plusMonths(2));
-            long jours = ChronoUnit.DAYS.between(conge.getDateDebut(), conge.getDateDebut().plusMonths(2));
+            }*/
+
+            float nbr = typeConge.getNbrJours();
+            LocalDateTime startDate = conge.getDateDebut();
+            LocalDateTime endDate = startDate.plusDays((long) nbr);
+            conge.setDateFin(endDate);
+            long jours = ChronoUnit.DAYS.between(startDate, endDate);
             conge.setDuree(jours);
+
         }
-        else if (typeConge.getNbrJours()==0.083) {
-            conge.setDateFin(conge.getDateDebut().plusHours(2));
-            conge.setDuree(0.083F);
-        }
-        else{
+
+        else if (typeConge.getNatureType().equals(NatureType.Normale)){
             LocalDate dateDebut = conge.getDateDebut().toLocalDate();
             LocalDate dateFin = conge.getDateFin().toLocalDate();
 
