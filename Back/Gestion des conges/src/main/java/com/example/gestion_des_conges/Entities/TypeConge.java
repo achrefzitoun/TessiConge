@@ -23,7 +23,8 @@ public class TypeConge implements Serializable {
 
     String description;
 
-    
+    @Enumerated(EnumType.STRING)
+    NatureType natureType;
 
     float nbrJours;
 
