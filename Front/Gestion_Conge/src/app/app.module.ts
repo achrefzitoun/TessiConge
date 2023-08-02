@@ -13,6 +13,7 @@ import { NodeService } from './demo/service/node.service';
 import { PhotoService } from './demo/service/photo.service';
 import { ReponseCongeComponent } from './Gestion_Conge/reponse-conge/reponse-conge.component';
 import { AffectationCongeComponent } from './Gestion_Conge/affectation-conge/affectation-conge.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { AffectationCongeComponent } from './Gestion_Conge/affectation-conge/aff
     ],
     imports: [
         AppRoutingModule,
-        AppLayoutModule
+        AppLayoutModule,
+        HttpClientModule
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
