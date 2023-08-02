@@ -11,6 +11,8 @@ import { EventService } from './demo/service/event.service';
 import { IconService } from './demo/service/icon.service';
 import { NodeService } from './demo/service/node.service';
 import { PhotoService } from './demo/service/photo.service';
+import { ReponseCongeComponent } from './Gestion_Conge/reponse-conge/reponse-conge.component';
+import { AffectationCongeComponent } from './Gestion_Conge/affectation-conge/affectation-conge.component';
 
 @NgModule({
     declarations: [
