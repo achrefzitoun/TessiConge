@@ -20,6 +20,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/conge")
+@CrossOrigin(origins = "*")
 public class GestionDeCongeController {
 
     private final IRoleServices roleServices;
@@ -91,6 +92,11 @@ public class GestionDeCongeController {
     @PutMapping("/JourFerie")
     public void miseAJourJourFerie() throws IOException {
         jourFerieServices.miseAJourJourFerie();
+    }
+
+    @GetMapping("/GetAllEmplyees")
+    public List<Employee> getAllEmployees(){
+        return emplyeeServices.retrieveAllEmployee();
     }
 
 }
