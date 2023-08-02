@@ -28,8 +28,6 @@ public class TypeConge implements Serializable {
     float nbrJours;
 
     @OneToMany(mappedBy = "typeConge")
-            @JsonIgnore
-
     @JsonIgnore
     List<Conge> listConge;
 
