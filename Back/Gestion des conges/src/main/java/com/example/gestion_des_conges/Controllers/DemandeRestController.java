@@ -33,8 +33,8 @@ public class DemandeRestController {
         return demandeService.addTypeConge(type);
     }
 
-    @PutMapping(value = "/addAndAssignType/{idtype}" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    void addConge(Conge conge, @RequestParam("file") MultipartFile file, @PathVariable("idtype") Integer id  , @RequestParam("s") String s , @RequestParam("f") String f ) throws IOException, MessagingException {
+    @PutMapping(value = "/addAndAssignType" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    void addConge(Conge conge, @RequestParam("file") MultipartFile file, @RequestParam("idtype") Integer idtype  , @RequestParam("s") String s , @RequestParam("f") String f ) throws IOException, MessagingException {
 
         //Conge cong = new ObjectMapper().readValue(conge, Conge.class);
 
@@ -45,12 +45,12 @@ public class DemandeRestController {
         conge.setDateDebut(dateTime);
         conge.setDateFin(dateTime2);
 
-         demandeService.addCongeAndAssignCongeToType(conge,file,id);
+         demandeService.addCongeAndAssignCongeToType(conge,file,idtype);
 
     }
 
-    @PutMapping(value = "/updateConge/{idtype}" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Conge updateConge(Conge conge, @RequestParam("file") MultipartFile file, @PathVariable("idtype") Integer id  , @RequestParam("s") String s , @RequestParam("f") String f  ) throws IOException {
+    @PutMapping(value = "/updateConge" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Conge updateConge(Conge conge, @RequestParam("file") MultipartFile file, @RequestParam("idtype") Integer idtype  , @RequestParam("s") String s , @RequestParam("f") String f  ) throws IOException {
 
         //Conge cong = new ObjectMapper().readValue(conge, Conge.class);
 
@@ -61,7 +61,7 @@ public class DemandeRestController {
         conge.setDateDebut(dateTime);
         conge.setDateFin(dateTime2);
 
-        return demandeService.updateConge(conge,id);
+        return demandeService.updateConge(conge,idtype);
     }
 
     @GetMapping("/getConge/{id}")
