@@ -26,7 +26,7 @@ public class JourFerie implements Serializable {
 
     LocalDateTime dateFin;
 
-    LocalDateTime annee;
+    Integer annee;
 
     @ManyToMany
     List<Politique> politiques;

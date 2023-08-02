@@ -1,5 +1,6 @@
 package com.example.gestion_des_conges.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,6 +20,8 @@ public class Employee implements Serializable {
     Integer idEmp;
 
     String username;
+
+    String email;
 
     String motDePass;
 
