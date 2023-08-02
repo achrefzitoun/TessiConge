@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-
+public interface ICongeRepository extends CrudRepository<Conge, Integer>{
 
     List<Conge> findByDateDebutLessThanEqualAndDateFinGreaterThanEqual (LocalDateTime dateDebut, LocalDateTime dateFin);
     List<Conge>  findByDemandeurAndDateDebutIsLessThanEqualAndDateFinIsGreaterThanEqual(Employee employe, LocalDateTime dateFin, LocalDateTime dateDebut);
