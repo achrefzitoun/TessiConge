@@ -25,5 +25,6 @@ public class MotifRefus implements Serializable {
     String description;
 
     @OneToMany(mappedBy = "motifRefus")
+    @JsonIgnore
     List<Conge> conge;
 }

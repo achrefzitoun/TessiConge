@@ -19,6 +19,8 @@ public class Employee implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer idEmp;
 
+    String email;
+
     String username;
 
     String email;
@@ -42,12 +44,15 @@ public class Employee implements Serializable {
     Role role;
 
     @ManyToOne
+    @JsonIgnore
     Employee superviseur;
 
     @OneToMany(mappedBy = "demandeur")
+    @JsonIgnore
     List<Conge> listDemande;
 
     @OneToMany(mappedBy = "validateur")
+    @JsonIgnore
     List<Conge> listValidation;
     @ManyToOne
     Politique politique;

@@ -29,13 +29,15 @@ public class Conge implements Serializable {
     float duree ;
 
     @Enumerated(EnumType.STRING)
-    Etat etat;
+    Etat etat = Etat.En_Attente;
 
     String description;
 
     byte[] pieceJointe;
 
     Integer idDelegue;
+
+    LocalDateTime dateValidation;
 
     @ManyToOne
     TypeConge typeConge;

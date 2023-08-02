@@ -29,6 +29,8 @@ public class TypeConge implements Serializable {
 
     @OneToMany(mappedBy = "typeConge")
             @JsonIgnore
+
+    @JsonIgnore
     List<Conge> listConge;
 
 
