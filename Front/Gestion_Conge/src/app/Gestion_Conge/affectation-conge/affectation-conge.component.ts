@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-affectation-conge',
-  templateUrl: './affectation-conge.component.html',
-  styleUrls: ['./affectation-conge.component.scss']
+  templateUrl: './affectation-conge.component.html'
 })
 export class AffectationCongeComponent {
   filteredCountries: any[] = [];
