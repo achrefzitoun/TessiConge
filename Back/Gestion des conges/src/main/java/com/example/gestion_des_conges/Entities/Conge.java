@@ -26,7 +26,7 @@ public class Conge implements Serializable {
 
     LocalDateTime dateFin;
 
-    Integer duree;
+    float duree ;
 
     @Enumerated(EnumType.STRING)
     Etat etat = Etat.En_Attente;
@@ -34,6 +34,8 @@ public class Conge implements Serializable {
     String description;
 
     byte[] pieceJointe;
+
+    Integer idDelegue;
 
     LocalDateTime dateValidation;
 

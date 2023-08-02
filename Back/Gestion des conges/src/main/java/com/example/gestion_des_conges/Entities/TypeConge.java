@@ -23,7 +23,13 @@ public class TypeConge implements Serializable {
 
     String description;
 
+    
+
+    float nbrJours;
+
     @OneToMany(mappedBy = "typeConge")
+            @JsonIgnore
+
     @JsonIgnore
     List<Conge> listConge;
 
