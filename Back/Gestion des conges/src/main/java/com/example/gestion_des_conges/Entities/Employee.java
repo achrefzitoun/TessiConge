@@ -23,8 +23,6 @@ public class Employee implements Serializable {
 
     String username;
 
-    String email;
-
     String motDePass;
 
     String nom;
