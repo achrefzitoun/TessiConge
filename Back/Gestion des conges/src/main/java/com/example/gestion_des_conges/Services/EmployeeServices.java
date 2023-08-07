@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeServices implements IEmployeeServices {
+public class EmployeeServices implements IEmplyeeServices {
     @Autowired
     private final ICongeRepository congeRepository;
 

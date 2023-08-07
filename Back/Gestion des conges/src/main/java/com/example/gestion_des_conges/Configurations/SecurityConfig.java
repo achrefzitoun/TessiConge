@@ -20,8 +20,7 @@ public class  SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .ldapAuthentication()
-                .userDnPatterns("uid={0},ou=people")
-                .groupSearchBase("ou=groups")
+                .userDnPatterns("cn={0}")  // Modèle DN pour la recherche d'utilisateurs
                 .contextSource(contextSource())
                 .passwordCompare()
                 .passwordEncoder(new LdapShaPasswordEncoder())
@@ -38,7 +37,7 @@ public class  SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
 
     public DefaultSpringSecurityContextSource contextSource() {
-        return new DefaultSpringSecurityContextSource(Arrays.asList("ldap://localhost:8389/"),"dc=springframework, dc=org");
+        return new DefaultSpringSecurityContextSource(Arrays.asList("ldap://172.18.41.200"),"dc=tessiassurance, dc=local");
     }
 
 }
