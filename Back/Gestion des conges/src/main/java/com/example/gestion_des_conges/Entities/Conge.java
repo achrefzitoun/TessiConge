@@ -20,20 +20,24 @@ public class Conge implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer idConge;
 
-    LocalDateTime dateDemande =LocalDateTime.now();
+    LocalDateTime dateDemande = LocalDateTime.now();
 
     LocalDateTime dateDebut;
 
     LocalDateTime dateFin;
 
-    Integer duree;
+    float duree ;
 
     @Enumerated(EnumType.STRING)
-    Etat etat;
+    Etat etat = Etat.En_Attente;
 
     String description;
 
     byte[] pieceJointe;
+
+    Integer idDelegue;
+
+    LocalDateTime dateValidation;
 
     @ManyToOne
     TypeConge typeConge;
