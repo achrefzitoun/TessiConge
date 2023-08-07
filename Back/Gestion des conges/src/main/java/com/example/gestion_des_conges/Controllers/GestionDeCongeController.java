@@ -1,22 +1,33 @@
 package com.example.gestion_des_conges.Controllers;
 
-import com.example.gestion_des_conges.Entities.Employee;
-import com.example.gestion_des_conges.Entities.Role;
+import com.example.gestion_des_conges.Entities.*;
 import com.example.gestion_des_conges.Services.*;
+import de.jollyday.Holiday;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/conge")
+@CrossOrigin(origins = "*")
 public class GestionDeCongeController {
 
     private final IRoleServices roleServices;
 
     private final ICongeServices congeServices;
 
-    private final IEmployeeServices employeeServices;
+    private final IEmplyeeServices emplyeeServices;
 
     private final IJourFerieServices jourFerieServices;
 
@@ -26,14 +37,6 @@ public class GestionDeCongeController {
 
     private final ITypeCongeServices typeCongeServices;
 
-    @RequestMapping(value = "/home", method = RequestMethod.GET)
-    public String index () {
-        return "Home page" ;
-    }
-
-
-
-    // ----- ROLE -----
     @PostMapping("/NewRole")
     public Role addRole(@RequestBody Role role) {
         return roleServices.addRole(role);
@@ -60,33 +63,40 @@ public class GestionDeCongeController {
     }
 
 
-
-
-
-    // ----- Employee -----
-    @PostMapping("/NewEmployee")
-    public Employee addEmployee(@RequestBody Employee employee) {
-        return employeeServices.addEmployee(employee);
+    @PutMapping("/reponseconge/{idConge}/{etat}")
+    public ResponseEntity<String> reponseConge(@PathVariable("idConge") int idConge, @PathVariable("etat") Etat etat/*, Principal principal*/, @RequestBody @Nullable MotifRefus motifRefus) throws MessagingException, IOException {
+        return congeServices.reponseConge(idConge,etat,motifRefus);
     }
 
-    @PutMapping("/UpdateEmployee")
-    public Employee updateEmployee(@RequestBody Employee employee) {
-        return employeeServices.updateEmployee(employee);
+    @GetMapping("/exportCongeExcel")
+    public ResponseEntity<String> exportCongeExcel(@RequestParam("dateDebut") String dateD, @RequestParam("dateFin") String dateF) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
+        LocalDateTime dateDebut = LocalDateTime.parse(dateD, formatter);
+        LocalDateTime dateFin = LocalDateTime.parse(dateF, formatter);
+
+        return congeServices.exportCongeExcel(dateDebut, dateFin);
     }
 
-    @DeleteMapping("/DeleteEmployee/{id}")
-    public void deleteEmployee(@PathVariable("id") int id) {
-        employeeServices.deleteEmployee(id);
+    @PutMapping("/affectationConge/{idDemandeur}/{idTypeConge}")
+    public ResponseEntity<String> affectationConge(@RequestBody Conge conge, @PathVariable("idDemandeur") int idDemandeur,/* Principal principal, */ @PathVariable("idTypeConge") int idTypeConge) throws MessagingException, IOException {
+        return congeServices.affectationConge(conge,idDemandeur,idTypeConge);
     }
 
-    @GetMapping("/ViewEmployee/{id}")
-    public Employee retrieveEmployee(@PathVariable("id") int id) {
-        return employeeServices.retrieveEmployee(id);
+    @GetMapping("/getHolidaysForCountry/{countryCode}/{year}")
+    public Set<Holiday> getHolidaysForCountry(@PathVariable("countryCode") String countryCode, @PathVariable("year") int year) {
+        HolidayManager holidayManager = HolidayManager.getInstance(HolidayCalendar.valueOf(countryCode));
+        return holidayManager.getHolidays(year);
     }
 
-    @GetMapping("/ViewEmployee")
-    public List<Employee> retrieveAllEmployee() {
-        return employeeServices.retrieveAllEmployee();
+    @PutMapping("/JourFerie")
+    public void miseAJourJourFerie() throws IOException {
+        jourFerieServices.miseAJourJourFerie();
+    }
+
+    @GetMapping("/GetAllEmplyees")
+    public List<Employee> getAllEmployees(){
+        return emplyeeServices.retrieveAllEmployee();
     }
 
 }
