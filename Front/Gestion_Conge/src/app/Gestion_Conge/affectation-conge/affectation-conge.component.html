@@ -1,0 +1,20 @@
+<div class="col-12">
+    <div class="card">
+        <h5>Affectation d'un congé à un employée</h5>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12">
+                <label htmlFor="address">Employée</label>
+                <p-autoComplete inputId="autocomplete" [suggestions]="filteredCountries"
+                (completeMethod)="searchEmployee($event)" field="name" rows="4"></p-autoComplete>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label htmlFor="firstname2">Date debut</label>
+                <p-calendar [showIcon]="true" inputId="icon"></p-calendar>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label htmlFor="firstname2">Date fin</label>
+                <p-calendar [showIcon]="true" inputId="icon"></p-calendar>
+            </div>
+        </div>
+    </div>
+</div>

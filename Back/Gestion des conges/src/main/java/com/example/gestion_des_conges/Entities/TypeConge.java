@@ -1,5 +1,6 @@
 package com.example.gestion_des_conges.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,7 +23,13 @@ public class TypeConge implements Serializable {
 
     String description;
 
+    @Enumerated(EnumType.STRING)
+    NatureType natureType;
+
+    float nbrJours;
+
     @OneToMany(mappedBy = "typeConge")
+    @JsonIgnore
     List<Conge> listConge;
 
 

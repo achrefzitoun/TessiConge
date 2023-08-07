@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historique des demandes de congé</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px black;
+            padding: 8px;
+        }
+        .center-pill {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<h1 class="center-pill">Historique des demandes de congé pour <span th:text="${employee.getNom()}"></span></h1>
+<table>
+    <thead>
+    <tr>
+        <th>Type de congé</th>
+        <th>Date de début de congé</th>
+        <th>Date de fin de congé</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    <tr th:each="leave : ${conges}" class="center-pill">
+        <td th:text="${leave.typeConge.getNomType()}"></td>
+        <td th:text="${leave.dateDebut}"></td>
+        <td th:text="${leave.dateFin}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

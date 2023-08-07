@@ -1,5 +1,6 @@
 package com.example.gestion_des_conges.Services;
 
+import com.example.gestion_des_conges.Entities.Employee;
 import com.example.gestion_des_conges.Entities.Role;
 import com.example.gestion_des_conges.Repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -59,4 +62,22 @@ public class RoleServices implements IRoleServices {
         roleRepository.findAll().forEach(roles::add);
         return roles;
     }
+
+    @Override
+    public List<Employee> retrieveEmployeesByRole(Role role) {
+        List<Employee> employees = employeeRepository.findByRole(role);
+        return employees;
+    }
+
+    @Override
+    public Map<String, Integer> countEmployeesByRole() {
+        List<Role> roles = new ArrayList<>();
+        roleRepository.findAll().forEach(roles::add);
+        Map<String,Integer> result = new HashMap<>();
+        for(Role r : roles){
+            result.put(r.getNomRole(),employeeRepository.findByRole(r).size());
+        }
+        return result;
+    }
+
 }
