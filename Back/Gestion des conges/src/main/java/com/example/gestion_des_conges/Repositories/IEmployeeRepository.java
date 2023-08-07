@@ -14,3 +14,4 @@ public interface IEmployeeRepository extends CrudRepository<Employee, Integer> {
     List<Employee> findByRole(Role role);
 
 }
+
