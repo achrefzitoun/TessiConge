@@ -37,7 +37,7 @@ public class  SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
 
     public DefaultSpringSecurityContextSource contextSource() {
-        return new DefaultSpringSecurityContextSource(Arrays.asList("ldap://172.18.41.200"),"dc=tessiassurance, dc=local");
+        return new DefaultSpringSecurityContextSource(Arrays.asList("ldap://tessiassurance.local"),"dc=tessiassurance, dc=local");
     }
 
 }

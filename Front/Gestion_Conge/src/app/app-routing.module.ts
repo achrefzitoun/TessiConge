@@ -2,6 +2,8 @@ import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { NotfoundComponent } from './demo/components/notfound/notfound.component';
 import { AppLayoutComponent } from "./layout/app.layout.component";
+import { LoginTessiComponent } from './login-tessi/login-tessi.component';
+import { CrudEmployeeComponent } from './crud-employee/crud-employee.component';
 
 @NgModule({
     imports: [
@@ -23,6 +25,8 @@ import { AppLayoutComponent } from "./layout/app.layout.component";
             { path: 'auth', loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule) },
             { path: 'landing', loadChildren: () => import('./demo/components/landing/landing.module').then(m => m.LandingModule) },
             { path: 'notfound', component: NotfoundComponent },
+            { path: 'login', component: LoginTessiComponent},
+            { path: 'crudEmployee', component: CrudEmployeeComponent},
             { path: '**', redirectTo: '/notfound' },
         ], { scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled', onSameUrlNavigation: 'reload' })
     ],
