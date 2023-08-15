@@ -78,13 +78,13 @@
                 <img [src]="'assets/demo/images/employee/' + employee.image" [alt]="employee.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" *ngIf="employee.image">
                 <div class="formgrid grid">
                     <div class="field col">
-                        <label for="Nom">Nom</label>
-                        <p-inputNumber id="Nom" [(ngModel)]="employee.Nom" [ngClass]="{'ng-invalid ng-dirty' : submitted && !employee.nom}"></p-inputNumber>
-                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !employee.nom">Nom is required.</small>
+                        <label for="nom">Nom</label>
+                        <input type="text" pInputText id="nom" [(ngModel)]="employee.nom" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !employee.nom}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !employee.name">Nom is required.</small>
                     </div>
                     <div class="field col">
                         <label for="prenom">Prenom</label>
-                        <p-inputNumber id="prenom" [(ngModel)]="employee.prenom"></p-inputNumber>
+                        <input type="text" pInputText id="prenom" [(ngModel)]="employee.prenom" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !employee.prenom}"/>
                         <small class="ng-dirty ng-invalid" *ngIf="submitted && !employee.prenom">Prenom is required.</small>
                     </div>
                 </div>
@@ -93,12 +93,6 @@
                     <input type="email" pInputText id="name" [(ngModel)]="employee.email" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !employee.name}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !employee.name">Email is required.</small>
                 </div>
-                <div class="field">
-                    <label for="description">Description</label>
-                    <textarea id="description" pInputTextarea [(ngModel)]="employee.description" required rows="3" cols="20"></textarea>
-                </div>
-
-
                 <div class="field">
                     <label class="mb-3">Entité</label>
                     <div class="formgrid grid">
@@ -124,6 +118,15 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="field">
+                    <label for="pwd">Mot de passe</label>
+                    <input type="password" pInputText id="pwd" [(ngModel)]="employee.motDePass" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !employee.motDePass}"/>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !employee.name">Email is required.</small>
+                </div>
+
+
+                
 
                 
             </ng-template>

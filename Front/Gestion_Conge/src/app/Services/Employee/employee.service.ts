@@ -1,39 +1,45 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Employee } from 'src/app/Model/Employee';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
 
+  private apiUrl = 'http://localhost:8081/Tessi/conge';
+
   constructor(private http: HttpClient) { }
 
-    getEmployeesSmall() {
-        return this.http.get<any>('assets/demo/data/employees-small.json')
-            .toPromise()
-            .then(res => res.data as Employee[])
-            .then(data => data);
-    }
+  addEmployee(employee: Employee): Observable<Employee> {
+    return this.http.post<Employee>(`${this.apiUrl}/NewEmployee`, employee);
+  }
 
-    getEmployees() {
-        return this.http.get<any>('assets/demo/data/employees.json')
-            .toPromise()
-            .then(res => res.data as Employee[])
-            .then(data => data);
-    }
+  updateEmployee(employee: Employee): Observable<Employee> {
+    return this.http.put<Employee>(`${this.apiUrl}/UpdateEmployee`, employee);
+  }
 
-    getEmployeesMixed() {
-        return this.http.get<any>('assets/demo/data/employees-mixed.json')
-            .toPromise()
-            .then(res => res.data as Employee[])
-            .then(data => data);
-    }
+  deleteEmployee(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/DeleteEmployee/${id}`);
+  }
 
-    getEmployeesWithOrdersSmall() {
-        return this.http.get<any>('assets/demo/data/employees-orders-small.json')
-            .toPromise()
-            .then(res => res.data as Employee[])
-            .then(data => data);
-    }
+  retrieveEmployee(id: number): Observable<Employee> {
+    return this.http.get<Employee>(`${this.apiUrl}/ViewEmployee/${id}`);
+  }
+
+  retrieveAllEmployees(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}/ViewEmployees`);
+  }
+ 
+  getEmployees() {
+    return this.http.get<any>(`${this.apiUrl}/ViewEmployees`)
+        .toPromise()
+        .then(res => res.data as Employee[])
+        .then(data => data);
+}
+
+
+   
+
 }

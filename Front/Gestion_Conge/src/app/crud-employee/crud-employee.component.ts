@@ -97,13 +97,15 @@ export class CrudEmployeeComponent implements OnInit {
         if (this.employee.nom?.trim()) {
             if (this.employee.idEmp) {
                 // @ts-ignore
-                this.employee.inventoryStatus = this.employee.inventoryStatus.value ? this.employee.inventoryStatus.value : this.employee.inventoryStatus;
+                this.employee.statut = this.employee.statut.value ? this.employee.statut.value : this.employee.statut;
                 this.employees[this.findIndexById(this.employee.idEmp)] = this.employee;
                 this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Employee Updated', life: 3000 });
             } else {
                 this.employee.idEmp = this.createId();
+                const generatedUsername = this.generateUsername(this.employee.nom, this.employee.idEmp);
+                this.employee.nom = generatedUsername; // Ajoutez le nom d'utilisateur au nouvel employé
                 // @ts-ignore
-                this.employee.inventoryStatus = this.employee.inventoryStatus ? this.employee.inventoryStatus.value : 'INSTOCK';
+                this.employee.statut = 'Actif'
                 this.employees.push(this.employee);
                 this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Employee Created', life: 3000 });
             }
@@ -113,6 +115,12 @@ export class CrudEmployeeComponent implements OnInit {
             this.employee = {};
         }
     }
+
+    generateUsername(employeeName: string, employeeId: string): string {
+        const formattedName = employeeName.replace(/\s+/g, ''); // Remove spaces from employee name
+        const username = `${formattedName}${employeeId}`;
+        return username;
+      }
 
     findIndexById(id: string): number {
         let index = -1;
