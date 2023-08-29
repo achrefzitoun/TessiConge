@@ -12,4 +12,7 @@ public interface IEmplyeeServices {
     public Employee retrieveEmployee(int id);
     public List<Employee> retrieveAllEmployee();
 
+      public List<Employee> getEmployeeByPolitique(Integer idPolitique);
+    public Employee getEmployeById(Integer id) ;
+
 }
