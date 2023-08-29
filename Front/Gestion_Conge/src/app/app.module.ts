@@ -56,7 +56,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
         InputTextareaModule,
         DropdownModule,
         RadioButtonModule,
-        InputNumberModule
+        InputNumberModule,
+        HttpClientModule
 
     ],
     providers: [
