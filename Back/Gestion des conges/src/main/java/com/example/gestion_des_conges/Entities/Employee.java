@@ -57,9 +57,10 @@ public class Employee implements Serializable {
     @JsonIgnore
     List<Conge> listValidation;
     @ManyToOne
+    @JsonIgnore
     Politique politique;
 
     @OneToMany(mappedBy = "demandeur")
-            @JsonIgnore
+    @JsonIgnore
     List<Autorisation> autorisations;
 }
