@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { MenusComponent } from './menus.component';
 import { PaymentComponent } from './payment.component';
 import { SeatComponent } from './seat.component';
@@ -17,6 +16,7 @@ import { ContextMenuModule } from 'primeng/contextmenu';
 import { MegaMenuModule } from 'primeng/megamenu';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { InputTextModule } from 'primeng/inputtext';
+import { RouterModule } from '@angular/router';
 @NgModule({
 	imports: [
 		CommonModule,

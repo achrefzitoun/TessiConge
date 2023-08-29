@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { AffectationCongeComponent } from './affectation-conge.component';
 import { AffectationCongeRoutingModule } from './affectation-conge-routing.module';
 import { CalendarModule } from 'primeng/calendar';
-import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ChipsModule } from 'primeng/chips';
 import { DropdownModule } from 'primeng/dropdown';
@@ -13,6 +12,7 @@ import { CascadeSelectModule } from 'primeng/cascadeselect';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     imports: [

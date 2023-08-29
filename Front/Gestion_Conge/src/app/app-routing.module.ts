@@ -1,7 +1,7 @@
-import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { NotfoundComponent } from './demo/components/notfound/notfound.component';
 import { AppLayoutComponent } from "./layout/app.layout.component";
+import { RouterModule } from '@angular/router';
 
 @NgModule({
     imports: [
@@ -20,6 +20,8 @@ import { AppLayoutComponent } from "./layout/app.layout.component";
                     { path: 'gestionroles', loadChildren: () => import('./Gestion_Roles/gestion-role.module').then(m => m.GestionRole) },
                 ]
             },
+            
+            
             { path: 'auth', loadChildren: () => import('./demo/components/auth/auth.module').then(m => m.AuthModule) },
             { path: 'landing', loadChildren: () => import('./demo/components/landing/landing.module').then(m => m.LandingModule) },
             { path: 'notfound', component: NotfoundComponent },

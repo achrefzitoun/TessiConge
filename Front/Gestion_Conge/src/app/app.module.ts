@@ -14,6 +14,9 @@ import { PhotoService } from './demo/service/photo.service';
 import { ReponseCongeComponent } from './Gestion_Conge/reponse-conge/reponse-conge.component';
 import { AffectationCongeComponent } from './Gestion_Conge/affectation-conge/affectation-conge.component';
 import { HttpClientModule } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
+
+
 
 @NgModule({
     declarations: [
@@ -22,12 +25,13 @@ import { HttpClientModule } from '@angular/common/http';
     imports: [
         AppRoutingModule,
         AppLayoutModule,
-        HttpClientModule
+        HttpClientModule,
+
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         CountryService, CustomerService, EventService, IconService, NodeService,
-        PhotoService, ProductService
+        PhotoService, ProductService , DatePipe 
     ],
     bootstrap: [AppComponent]
 })

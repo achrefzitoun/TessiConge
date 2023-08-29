@@ -22,6 +22,8 @@ public interface ICongeRepository extends CrudRepository<Conge, Integer>{
     List<Conge> findByDateDebutLessThanEqualAndDateFinGreaterThanEqual (LocalDateTime dateDebut, LocalDateTime dateFin);
     List<Conge>  findByDemandeurAndDateDebutIsLessThanEqualAndDateFinIsGreaterThanEqual(Employee employe, LocalDateTime dateFin, LocalDateTime dateDebut);
 
+    Conge findFirstByDemandeurAndDateDebutAndDateFin(Employee employee,LocalDateTime d1 , LocalDateTime d2 );
+
     Conge findFirstByDemandeur(Employee employee);
 
     boolean findByDateDebutGreaterThanEqualAndDateFinIsLessThan(LocalDateTime d1 , LocalDateTime d2);
@@ -29,11 +31,20 @@ public interface ICongeRepository extends CrudRepository<Conge, Integer>{
     List<Conge> findAllByDateFinLessThan(LocalDateTime date);
 
 
-    List<Conge> findByDemandeur(Employee employee);
 
     List<Conge> findByDateDebutBetweenAndEtat(LocalDateTime datedeb, LocalDateTime datefin, Etat etat);
 
     List<Conge> findByEtat(Etat etat);
+
+    List<Conge> findByDemandeurAndEtat(Employee e , Etat etat);
+
+
+
+
+
+
+
+
 
 
 }

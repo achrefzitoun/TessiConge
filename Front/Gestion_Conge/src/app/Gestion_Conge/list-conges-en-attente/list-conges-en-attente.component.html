@@ -1,0 +1,84 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+        
+
+            <p-table #dt [value]="conges" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['conge.demandeur.nom','typeConge.nomType','dateDemande','dateDebut','dateFin','description','etat']"
+                [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                 selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Liste des demandes</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="typeConge.nomType">Nom de demandeur <p-sortIcon
+                            field="typeConge.nomType"></p-sortIcon></th>
+                        <th pSortableColumn="typeConge.nomType">Type Conge <p-sortIcon
+                                field="typeConge.nomType"></p-sortIcon></th>
+                        <th pSortableColumn="dateDemande">Date Demande <p-sortIcon field="dateDemande"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="dateDebut">Date debut <p-sortIcon field="dateDebut"></p-sortIcon></th>
+                        <th pSortableColumn="dateFin">Date fin <p-sortIcon field="dateFin"></p-sortIcon></th>
+                        <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+                        <th pSortableColumn="etat">Status <p-sortIcon field="etat"></p-sortIcon>
+                        </th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-conge>
+                    <tr>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Nom de demandeur</span>
+                            <strong>  {{conge.demandeur.nom}} {{conge.demandeur.nom}} </strong> 
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Type Conge</span>
+                            {{conge.typeConge.nomType}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Date Demande</span>
+                            {{conge.dateDemande | date: 'dd/MM/yyyy HH:mm'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Date debut</span>
+                            {{conge.dateDebut | date: 'dd/MM/yyyy HH:mm'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Date fin</span>
+                            {{conge.dateFin | date: 'dd/MM/yyyy HH:mm'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Description</span>
+                            {{conge.description}}
+                        </td>
+                        <td style="width: 14%; min-width: 10rem;">
+                            <span class="p-column-title">Status</span>
+                            <ng-container *ngIf="getClassByEtat(conge.etat) === 'status-lowstock'">
+                                <span class="product-badge status-lowstock">{{ conge.etat }}</span>
+                            </ng-container>
+                           
+                        </td>
+
+                        <td>
+                            <div class="flex">
+                                <td style="width:30%; min-width:10rem;">
+                                    <p-button label="Traiter le demande" styleClass="p-button-link" ></p-button>
+                                </td>
+
+                            
+
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

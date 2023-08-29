@@ -19,6 +19,7 @@ public class MotifRefus implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer idMotif;
 
+    String nomMotif;
     @Enumerated(EnumType.STRING)
     TypeMotif typeMotif;
 

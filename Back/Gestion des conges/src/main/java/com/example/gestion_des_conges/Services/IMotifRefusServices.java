@@ -13,5 +13,6 @@ public interface IMotifRefusServices {
     public List<MotifRefus> retrieveAllMotifRefus();
 
     public MotifRefus retrieveMotifByConge(Conge conge);
+    public List<MotifRefus> getAllMotifRefus() ;
 
 }

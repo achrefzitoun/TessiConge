@@ -12,26 +12,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EmplyeeServices implements IEmplyeeServices {
-    @Autowired
-    private final ICongeRepository congeRepository;
 
-    @Autowired
+
     private final IEmployeeRepository employeeRepository;
 
-    @Autowired
-    private final IJourFerieRepository jourFerieRepository;
-
-    @Autowired
-    private final IMotifRefusRepository motifRefusRepository;
-
-    @Autowired
-    private final IPolitiqueRepository politiqueRepository;
-
-    @Autowired
-    private final IRoleRepository roleRepository;
-
-    @Autowired
-    private final ITypeCongeRepository typeCongeRepository;
 
     @Override
     public List<Employee> retrieveAllEmployee() {
@@ -39,4 +23,17 @@ public class EmplyeeServices implements IEmplyeeServices {
         employeeRepository.findAll().forEach(employees::add);
         return employees;
     }
+
+    @Override
+    public List<Employee> getEmployeeByPolitique(Integer idPolitique){
+        return  employeeRepository.getEmployeesByPolitiqueId(idPolitique);
+    }
+
+    @Override
+    public Employee getEmployeById(Integer id){
+        return employeeRepository.findById(id).orElse(null);
+    }
+
+
+
 }

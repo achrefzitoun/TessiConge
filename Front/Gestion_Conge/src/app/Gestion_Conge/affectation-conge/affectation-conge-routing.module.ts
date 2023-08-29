@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+
 import { AffectationCongeComponent } from './affectation-conge.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
     imports: [RouterModule.forChild([

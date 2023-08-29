@@ -1,0 +1,105 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+      
+
+            <p-table #dt [value]="conges" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['typeConge.nomType','dateDebut','dateFin','etat','idDelegue']" [paginator]="true"
+                [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedPolitiques" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Liste des delegations</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="typeConge.nomType"> Type de congé <p-sortIcon field="typeConge.nomType"></p-sortIcon></th>
+                        <th pSortableColumn="dateDebut"> Date debut de congé <p-sortIcon field="dateDebut"></p-sortIcon></th>
+                        <th pSortableColumn="dateFin">Date Fin de congé <p-sortIcon field="dateFin"></p-sortIcon></th>
+                        <th pSortableColumn="etat">Statut de la delegation <p-sortIcon field="etat"></p-sortIcon></th>
+                        <th pSortableColumn="idDelegue"> Nom de délégué <p-sortIcon field="idDelegue"></p-sortIcon></th>
+                        <th pSortableColumn="code"> </th>
+
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-conge>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="conge"></p-tableCheckbox>
+                        </td>
+                        <td style="width:20%; min-width:10rem;">
+                            {{conge.typeConge.nomType}}
+                        </td>
+                        <td style="width:20%; min-width:10rem;">
+                            {{conge.dateDebut | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                        <td style="width:20%; min-width:10rem;">
+                            {{conge.dateFin | date: 'dd/MM/yyyy HH:mm'}}
+                        </td>
+                        <td style="width: 20%; min-width: 10rem;">
+
+
+                            <ng-container *ngIf="congeDelegueStatus(conge) === 'Délégué'">
+                                <span class="product-badge status-instock">Délégué</span>
+                            </ng-container>
+
+                            <ng-container *ngIf="congeDelegueStatus(conge) === 'Non délégué'">
+                                <span class="product-badge status-outofstock">Non délégué</span>
+                            </ng-container>
+                        </td>
+
+
+                        <td style="width: 20%; min-width: 10rem;"  *ngIf="congeDelegueStatus(conge) === 'Délégué'" >
+                            <strong>  {{ delegueEmployeeNames[conge.idConge] }} </strong> </td>
+
+                            <td style="width: 20%; min-width: 10rem;"  *ngIf="congeDelegueStatus(conge) === 'Non délégué'" >
+                                -- </td>
+                      
+                        <div class="flex" style="width: 20%" *ngIf="congeDelegueStatus(conge) === 'Non délégué'">
+                            <p-button label="Choisir un employé " styleClass="p-button-link"
+                                (click)="openNew(conge)"></p-button>
+                        </div>
+                   
+
+
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="delegationDialog" [style]="{width: '500px' ,'height': '900px' }"
+            header="Delegué un employé" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="name"> <strong> Date debut </strong> </label>
+                    <p-calendar [showIcon]="true" [showTime]="true" inputId="icon" [(ngModel)]="startDate" required
+                        readonly></p-calendar>
+                </div>
+                <div class="field">
+                    <label for="name"> <strong> Date Fin </strong> </label>
+                    <p-calendar [showIcon]="true" [showTime]="true" inputId="icon" [(ngModel)]="endDate" required
+                        readonly></p-calendar>
+                </div>
+                <label for="name" style="align-content: center;"> <strong> Liste des Délégués </strong> </label>
+                <p-menu [model]="panelMenuItems"></p-menu>
+
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-text"
+                    (click)="saveDelegation()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

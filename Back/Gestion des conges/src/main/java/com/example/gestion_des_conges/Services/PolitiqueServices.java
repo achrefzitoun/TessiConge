@@ -12,26 +12,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PolitiqueServices implements IPolitiqueServices {
-    @Autowired
-    private final ICongeRepository congeRepository;
 
-    @Autowired
-    private final IEmployeeRepository employeeRepository;
-
-    @Autowired
-    private final IJourFerieRepository jourFerieRepository;
-
-    @Autowired
-    private final IMotifRefusRepository motifRefusRepository;
-
-    @Autowired
     private final IPolitiqueRepository politiqueRepository;
 
-    @Autowired
-    private final IRoleRepository roleRepository;
-
-    @Autowired
-    private final ITypeCongeRepository typeCongeRepository;
 
     @Override
     public Politique addPolitique(Politique politique) {
@@ -59,4 +42,7 @@ public class PolitiqueServices implements IPolitiqueServices {
         politiqueRepository.findAll().forEach(politiques::add);
         return politiques;
     }
+
+
+
 }

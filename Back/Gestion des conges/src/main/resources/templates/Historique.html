@@ -18,7 +18,8 @@
     </style>
 </head>
 <body>
-<h1 class="center-pill">Historique des demandes de congé pour <span th:text="${employee.getNom()}"></span></h1>
+<h3 class="center-pill">Historique des demandes de congé pour <span th:text="${employee.getNom()}"></span></h3>
+<p><span style="font-weight: bold">NB:</span>Il vous reste <span  style="font-weight: bold" th:text="${employee.getSoldeConge()}"></span> jours </p>
 <table>
     <thead>
     <tr>

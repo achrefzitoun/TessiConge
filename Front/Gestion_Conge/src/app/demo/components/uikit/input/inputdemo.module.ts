@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { InputDemoComponent } from './inputdemo.component';
 import { InputDemoRoutingModule } from './inputdemo-routing.module';
 import { AutoCompleteModule } from "primeng/autocomplete";
@@ -25,6 +24,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { SliderModule } from 'primeng/slider';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
 	imports: [

@@ -8,5 +8,8 @@ public interface IEmplyeeServices {
 
     public List<Employee> retrieveAllEmployee();
 
+    public List<Employee> getEmployeeByPolitique(Integer idPolitique);
+    public Employee getEmployeById(Integer id) ;
+
 
 }

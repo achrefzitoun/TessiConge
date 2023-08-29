@@ -31,7 +31,11 @@ public class Employee implements Serializable {
 
     String adresse;
 
-    String soldeConge;
+    long soldeConge;
+
+    boolean autorisationJour = false;
+
+    long autorisationDuration = 6;
 
     @Enumerated(EnumType.STRING)
     Statut statut;
@@ -53,5 +57,6 @@ public class Employee implements Serializable {
     @JsonIgnore
     List<Conge> listValidation;
     @ManyToOne
+            @JsonIgnore
     Politique politique;
 }

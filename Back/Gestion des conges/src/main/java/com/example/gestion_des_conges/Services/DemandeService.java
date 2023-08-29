@@ -1,11 +1,13 @@
 package com.example.gestion_des_conges.Services;
 
 
+import com.example.gestion_des_conges.Configurations.Mail;
 import com.example.gestion_des_conges.Entities.*;
 import com.example.gestion_des_conges.Repositories.ICongeRepository;
 import com.example.gestion_des_conges.Repositories.IEmployeeRepository;
 import com.example.gestion_des_conges.Repositories.IRoleRepository;
 import com.example.gestion_des_conges.Repositories.ITypeCongeRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.text.Document;
@@ -14,7 +16,13 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,24 +34,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.transaction.Transactional;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -56,23 +67,28 @@ public class DemandeService implements  IDemandeService{
 
     private final IEmployeeRepository employeeRepository;
 
-    @Autowired
     private final IRoleRepository roleRepository;
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private SpringTemplateEngine templateEngine;
+
     //Mail
     @Override
-    public void sendEmail(String to, String subject, String body) throws MessagingException {
+    public void sendEmail(Mail mail, String templateName) throws MessagingException{
         MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(body, true);
-
+        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+        Context context = new Context();
+        context.setVariables(mail.getProps());
+        helper.setFrom(mail.getFrom());
+        helper.setTo(mail.getMailTo());
+        helper.setSubject(mail.getSubject());
+        String html = templateEngine.process(templateName, context);
+        helper.setText(html, true);
         mailSender.send(message);
     }
+
 
     @Override
     public TypeConge addTypeConge(TypeConge typeConge) {
@@ -80,78 +96,167 @@ public class DemandeService implements  IDemandeService{
     }
 
     @Override
-    public void addCongeAndAssignCongeToType(Conge conge, MultipartFile file , Integer idType ) throws IOException, MessagingException {
+    //@Scheduled(cron = "0 0 1 1 * *")
+    public void updateSoldeCongeEmployees(){
+        List<Employee> employees = new ArrayList<>();
+        employeeRepository.findAll().forEach(employees::add);
+        for (Employee e : employees){
+            e.setSoldeConge((long) (e.getSoldeConge() + 2.17));
+            e.setAutorisationDuration(6);
+            employeeRepository.save(e);
+        }
+    }
+
+    @Override
+    //@Scheduled(cron = "0 0 1 * * *")
+    public void updateSoldeAutorisationEmployees(){
+        List<Employee> employees = new ArrayList<>();
+        employeeRepository.findAll().forEach(employees::add);
+        for (Employee e : employees){
+            e.setAutorisationJour(false);
+            employeeRepository.save(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getAutorisation( int idEmployee, float duree){
+        Employee employee = employeeRepository.findById(idEmployee).orElse(null);
+        Map<String, String> responseMap = new HashMap<>();
+
+        if(employee==null){
+            String rep = "Employee non trouver.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+        }
+        else{
+            if(employee.isAutorisationJour()){
+                String rep = "Tu as deja pris une autorisation aujourd'hui .";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
+            }
+            if(employee.getAutorisationDuration()<duree ){
+                String rep = "Solde d'autorisation insuffisant.";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
+            }
+        }
+        employee.setAutorisationDuration((long) (employee.getAutorisationDuration() - duree));
+        employee.setAutorisationJour(true);
+
+        String rep = "Autorisation enregistrer avec succées.";
+        responseMap.put("message", rep);
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<?> addCongeAndAssignCongeToType(Conge conge, MultipartFile file , Integer idType ) throws IOException, MessagingException {
 
         Employee e = employeeRepository.findById(1).orElse(null);
 
         TypeConge typeConge = typeCongeRepository.findById(idType).orElse(null);
-        if(file!=null){
+
+        List<Conge> congesEmployee = estEnConge(e.getIdEmp(), conge.getDateDebut(), conge.getDateFin());
+        Map<String, String> responseMap = new HashMap<>();
+
+        if (file != null) {
             byte[] bytes = file.getBytes();
             conge.setPieceJointe(bytes);
         }
-
         conge.setTypeConge(typeConge);
         conge.setDemandeur(e);
-
         conge.setValidateur(e.getSuperviseur());
 
-        if(typeConge.getNatureType().equals(NatureType.Speciale)){
-          /*  if(typeConge.getNbrJours()==1){
-                conge.setDateFin(conge.getDateDebut().plusDays(1));
-                conge.setDuree(1);
-            }
-            else if(typeConge.getNbrJours()==62){
-                conge.setDateFin(conge.getDateDebut().plusMonths(2));
-                long jours = ChronoUnit.DAYS.between(conge.getDateDebut(), conge.getDateDebut().plusMonths(2));
-                conge.setDuree(jours);
-            }
-            else if (typeConge.getNbrJours()==0.083) {
-                conge.setDateFin(conge.getDateDebut().plusHours(2));
-                conge.setDuree(0.083F);
+        if (typeConge.getNatureType().equals(NatureType.Speciale)) {
 
-            }*/
+                if (!typeConge.getNomType().equals("Congé de maladie")){
+                    float calculDurationSpecaile = calculDurationSpecaile(conge.getDateDebut(), idType);
+                    float nbr = typeConge.getNbrJours();
+                    LocalDateTime calculatedEndDate = conge.getDateDebut().plusDays((long) nbr);
+                    conge.setDuree(calculDurationSpecaile);
+                    conge.setDateFin(calculatedEndDate);
+                    congeRepository.save(conge);
+                }
+                else {
+                    float calculDurationNormale = calculDurationNormale(conge.getDateDebut(), conge.getDateFin());
+                    conge.setDuree(calculDurationNormale);
+                    congeRepository.save(conge);
+                }
 
-            float nbr = typeConge.getNbrJours();
-            LocalDateTime startDate = conge.getDateDebut();
-            LocalDateTime endDate = startDate.plusDays((long) nbr);
-            conge.setDateFin(endDate);
-            long jours = ChronoUnit.DAYS.between(startDate, endDate);
-            conge.setDuree(jours);
+
 
         }
+        else if (typeConge.getNatureType().equals(NatureType.Normale)) {
+            float calculDurationNormale = calculDurationNormale(conge.getDateDebut(), conge.getDateFin());
+            if (e.getSoldeConge() - calculDurationNormale > 0 && !typeConge.getNomType().equals("Congé sans solde")) {
+                conge.setDuree(calculDurationNormale);
+                congeRepository.save(conge);
 
-        else if (typeConge.getNatureType().equals(NatureType.Normale)){
-            LocalDate dateDebut = conge.getDateDebut().toLocalDate();
-            LocalDate dateFin = conge.getDateFin().toLocalDate();
+            }
+            else if (typeConge.getNomType().equals("Demi jour matin") || typeConge.getNomType().equals("Demi jour après midi")){
+                conge.setDuree((float) 0.5);
+                congeRepository.save(conge);
+            }
+            else if (typeConge.getNomType().equals("Congé sans solde")){
+                conge.setDuree(calculDurationNormale);
+                congeRepository.save(conge);
 
-            long jours = ChronoUnit.DAYS.between(dateDebut, dateFin);
+            }
+            else {
+                String rep = "Vous n'avez pas le droit de passer un congé";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
 
-            conge.setDuree(jours);
+            }
         }
 
+        Mail mail = new Mail();
 
-        congeRepository.save(conge);
+        mail.setFrom("chaima.hadjkacem@esprit.tn");
+        mail.setMailTo(e.getSuperviseur().getEmail());
+        mail.setSubject("Demande de congé");
 
-        String to = e.getSuperviseur().getEmail();
-        String subject = "Demande de congé";
-        String body = "Bonjour" + e.getSuperviseur().getNom() + " " + ",\n" +
-                "\n" + "J'espère que ce message vous trouve bien" + "Je tenais à vous informer qu'un de nos employés," +  e.getNom() +
-                "\n" +
-                 " , a récemment soumis une demande de congé. Je souhaite attirer votre attention sur les détails de cette demande. \n" +
-                "\n" +
-                "Voici les informations relatives à la demande de conge d'" +   e.getNom()  +":"+ " Nom de l'employé  \n" + e.getNom() + "\n" +
-                "Date de soumission : \n"+  conge.getDateDemande()+ "\n"+ "Période de congé demandée: \n" + "de \n"+   conge.getDateDebut()+ "\n"+
-                "au \n"+   conge.getDateFin()+ "\n"+ "Conformément à notre processus de gestion des stages, je vous invite à examiner attentivement cette demande et à prendre les mesures nécessaires. \n" +
-                "\n" ;
-        sendEmail(to, subject , body);
+        Map<String, Object> model = new HashMap<String, Object>();
 
+        model.put("namevalidateur", e.getSuperviseur().getNom()+ " " + e.getSuperviseur().getPrenom());
+        model.put("namedemandeur", e.getNom() + " " + e.getPrenom());
+        model.put("datedebut", conge.getDateDebut());
+        model.put("datefin", conge.getDateFin());
+        model.put("datedemande", conge.getDateDemande());
+        model.put("dure", conge.getDuree());
+        model.put("type", conge.getTypeConge().getNomType());
+
+        mail.setProps(model);
+        //sendEmail(mail, "EmailDeDemande.html");
+
+        String rep = "OK";
+        responseMap.put("message", rep);
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
+
+    }
+
+
+    @Override
+    public float calculDurationSpecaile(LocalDateTime startDate, Integer idType) {
+        TypeConge typeConge = typeCongeRepository.findById(idType).orElse(null);
+        float nbr = typeConge.getNbrJours();
+        LocalDateTime calculatedEndDate = startDate.plusDays((long) nbr);
+        long jours = ChronoUnit.DAYS.between(startDate, calculatedEndDate);
+        return jours;
+    }
+
+    @Override
+    public float calculDurationNormale(LocalDateTime startDate, LocalDateTime endDate){
+        long jours = ChronoUnit.DAYS.between(startDate, endDate);
+        return jours;
     }
 
     @Override
     public Conge updateConge(Conge conge , Integer idType){
         TypeConge typeConge = typeCongeRepository.findById(idType).orElse(null);
         conge.setTypeConge(typeConge);
-
+        long jours = ChronoUnit.DAYS.between(conge.getDateDebut(), conge.getDateFin());
+        conge.setDuree(jours);
         return congeRepository.save(conge);
     }
 
@@ -160,6 +265,32 @@ public class DemandeService implements  IDemandeService{
         List<Conge> conges = new ArrayList<>();
         congeRepository.findAll().forEach(conges::add);
         return conges;
+    }
+
+    @Override
+    public List<Conge> getAllCongeEnAttente(){
+        List<Conge> conges = congeRepository.findByEtat(Etat.En_Attente);
+        return conges;
+    }
+
+
+    @Override
+    public List<Conge> getListCongeByEmploye(/*Integer id*/){
+        Employee employee = employeeRepository.findById(1).orElse(null);
+        List <Conge> conges = new ArrayList<>();
+        for(Conge c : employee.getListDemande()){
+            conges.add(c);
+        }
+        return conges ;
+    }
+
+
+
+    @Override
+    public List<TypeConge> getAllTypes(){
+        List<TypeConge> typeconges = new ArrayList<>();
+        typeCongeRepository.findAll().forEach(typeconges::add);
+        return typeconges;
     }
 
     @Override
@@ -177,20 +308,24 @@ public class DemandeService implements  IDemandeService{
         congeRepository.save(cong);
 
 
-        String to = e.getSuperviseur().getEmail();
-        String subject = "Annulation de la demande de congé de l'employé " + e.getNom();
-        String body = "Bonjour" + e.getSuperviseur().getNom()  + ",\n" +
-                "\n" + "J'espère que vous vous portez bien. Nous souhaitons vous informer qu'une mise à jour importante concerne l'employé " + e.getNom() +"`\n"+" et sa demande de congé." +
-                "\n" +
-                "En effet, nous avons été notifiés que Mohamed a décidé d'annuler sa demande de congé initialement soumise le \n" + cong.getDateDemande()+ "."+
-                "\n" +
-                "Par conséquent, les dates de congé prévues du \n " + cong.getDateDebut()+ " au \n" +cong.getDateFin()+  "ne seront plus valides." +
-                "\n"+
-                "Nous comprenons que cela peut entraîner des ajustements dans la planification des ressources, " +
-                "et nous vous prions de bien vouloir prendre en compte cette modification dans l'organisation du travail de l'équipe. \n" +
-                "\n" +
-                "Nous apprécions grandement votre compréhension et votre gestion efficace de cette situation. Votre professionnalisme contribue à maintenir un environnement de travail harmonieux.";
-        sendEmail(to, subject , body);
+        Mail mail = new Mail();
+
+        mail.setFrom("chaima.hadjkacem@esprit.tn");
+        mail.setMailTo(e.getSuperviseur().getEmail());
+        mail.setSubject("Annulation de la demande de congé ");
+
+        Map<String, Object> model = new HashMap<String, Object>();
+
+        model.put("namevalidateur", e.getSuperviseur().getNom()+ " " + e.getSuperviseur().getPrenom());
+        model.put("namedemandeur", e.getNom() + " " + e.getPrenom());
+        model.put("datedebut", cong.getDateDebut());
+        model.put("datefin", cong.getDateFin());
+        model.put("datedemande", cong.getDateDemande());
+
+
+        mail.setProps(model);
+        sendEmail(mail, "EmailAnnulation.html");
+
 
     }
 
@@ -203,55 +338,54 @@ public class DemandeService implements  IDemandeService{
 
 
     @Override
-    public void delegationDeRole(Integer idsup, Integer idEmpl) {
-        Employee superv = employeeRepository.findById(idsup).orElse(null);
+    public ResponseEntity<?> delegationDeRole( /*Integer idsup,*/ Integer idEmpl,LocalDateTime dateDebut, LocalDateTime dateFin) {
+        Employee superv = employeeRepository.findById(2).orElse(null);
         Employee emp = employeeRepository.findById(idEmpl).orElse(null);
+        Map<String, String> responseMap = new HashMap<>();
 
-        if (superv == null || emp == null) {
-            // Gérer le cas où le superviseur ou l'employé n'est pas trouvé dans le référentiel.
-            return;
-        }
 
         Role superviseurRole = roleRepository.findByNomRole("superviseur");
-        Conge cSuperv = congeRepository.findFirstByDemandeur(superv);
 
-        if (cSuperv != null && cSuperv.getDateDebut().isBefore(LocalDateTime.now()) && cSuperv.getDateFin().isAfter(LocalDateTime.now())) {
 
-                // Vérifier si l'employé n'est pas en congé pendant la période du superviseur.
-                List<Conge> congesEmployeePendantPeriodeSuperviseur = estEnConge(idEmpl, cSuperv.getDateDebut(), cSuperv.getDateFin());
+        Conge cSuperv = congeRepository.findFirstByDemandeurAndDateDebutAndDateFin(superv,dateDebut,dateFin);
 
-                if (congesEmployeePendantPeriodeSuperviseur.isEmpty() && superv.getRole().equals(superviseurRole)) {
-                    // Si l'employé a le rôle de superviseur et n'est pas en congé pendant la période du superviseur,
-                    // nous pouvons effectuer la délégation manuelle.
-                    emp.setRole(superviseurRole);
-                    cSuperv.setIdDelegue(idEmpl);
-                    employeeRepository.save(emp);
-                    congeRepository.save(cSuperv);
-                } else {
-                    System.out.println("L'employé est également en congé pendant la période du superviseur.");
+        if (cSuperv != null  && dateDebut.isBefore(LocalDateTime.now()) && dateFin.isAfter(LocalDateTime.now())) {
+          // l'employé n'est pas en congé pendant la période du superviseur.
+            List<Conge> congesEmployeePendantPeriodeSuperviseur = estEnConge(idEmpl, dateDebut, dateFin);
+                if (congesEmployeePendantPeriodeSuperviseur.isEmpty()) {
+                        emp.setRole(superviseurRole);
+                        cSuperv.setIdDelegue(idEmpl);
+                        employeeRepository.save(emp);
+                        congeRepository.save(cSuperv);
+                        String rep = "OK";
+                        responseMap.put("message", rep);
+
+                }
+                else {
+
+                        String rep = "L'employe est egalement en conge pendant cette periode.";
+                        responseMap.put("message", rep);
+
                 }
         }
-        else {
-                System.out.println("Le superviseur n'est pas en congé actuellement.");
-        }
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
     }
 
 
     //@Scheduled(fixedDelay = 60000)
     @Override
     public void retablirRoleDeleg(){
-        // Récupérer tous les congés actifs pour les superviseurs
         List<Conge> congesSuperviseurs = congeRepository.findAllByDateFinLessThan(LocalDateTime.now());
 
         for (Conge conge : congesSuperviseurs) {
             if (conge.getIdDelegue() != null) {
-                // Si l'employé est délégué pendant la période de congé du superviseur, vérifier si la période de congé du superviseur est terminée
+
                 Employee empDelegue = employeeRepository.findById(conge.getIdDelegue()).orElse(null);
 
                 if (empDelegue != null) {
                     Conge cSuperv = congeRepository.findFirstByDemandeur(empDelegue);
                     if (cSuperv != null && cSuperv.getDateDebut().isBefore(LocalDateTime.now()) && cSuperv.getDateFin().isBefore(LocalDateTime.now())) {
-                        // La période de congé du superviseur est terminée, rétablir le rôle de l'employé délégué à "employee"
+
                         Role roleEmploye = roleRepository.findByNomRole("employee");
                         empDelegue.setRole(roleEmploye);
                         employeeRepository.save(empDelegue);
@@ -261,20 +395,27 @@ public class DemandeService implements  IDemandeService{
         }
     }
 
+    @Override
+    public List<Employee> getEmployeeDev(){
+        return employeeRepository.getEmplyeesDev();
+    }
+
+    @Override
+    public List<Employee> getEmployeeControle(){
+        return employeeRepository.getEmplyeesContr();
+    }
+
 
 
     @Override
-    public ResponseEntity<byte[]> generatePdf(int idemp) throws  IOException, DocumentException {
+    public ResponseEntity<byte[]> generatePdf(/*int idemp*/) throws  IOException, DocumentException {
 
-        Employee employee = employeeRepository.findById(idemp).orElse(null);
-        List<Conge> conges = congeRepository.findByDemandeur(employee);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Employee employee = employeeRepository.findById(1).orElse(null);
+        List<Conge> conges = congeRepository.findByDemandeurAndEtat(employee,Etat.Accepte);
 
 
-        // Create a new PDF document
         Document document = new Document();
 
-        // Create a file on the server to write the PDF to
         File file = new File("Historique" + employee.getNom()+ ".pdf");
 
         PdfWriter.getInstance(document, Files.newOutputStream(file.toPath()));
@@ -295,24 +436,146 @@ public class DemandeService implements  IDemandeService{
         ConverterProperties converterProperties = new ConverterProperties();
         HtmlConverter.convertToPdf(htmlContent, Files.newOutputStream(file.toPath()), converterProperties);
 
-
-
-        // Read the PDF file into a byte array
         byte[] contents = Files.readAllBytes(file.toPath());
 
-        // Set the response headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/pdf"));
         headers.setContentDispositionFormData("attachment", "Historique.pdf");
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
-        // Create the ResponseEntity with the PDF contents and headers
         ResponseEntity<byte[]> response = new ResponseEntity<>(contents, headers, HttpStatus.OK);
 
         return response;
     }
 
+    @Override
+    public List<TypeConge> getTypeCongebyNature(NatureType natureType) {
+        return typeCongeRepository.findAllByNatureType(natureType);
+    }
 
+    @Value("${files.file.path}")
+    private String files;
+
+
+
+    @Override
+    public ResponseEntity<byte[]> exportCongeExcel() {
+
+        Workbook workbook = new XSSFWorkbook();
+
+        Employee demandeur = employeeRepository.findById(1).orElse(null);
+        List<Conge> conges = congeRepository.findByDemandeurAndEtat(demandeur,Etat.Accepte);
+        Sheet sheet;
+
+        String fileName;
+
+
+        sheet = workbook.createSheet("Tous les congé accepter");
+        fileName = files+"\\Liste_Des_congés_accepter"+demandeur.getNom()+".xlsx";
+
+
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Type de congé");
+        headerRow.createCell(1).setCellValue("Date de soumission");
+        headerRow.createCell(2).setCellValue("Date debut");
+        headerRow.createCell(3).setCellValue("Date fin");
+        headerRow.createCell(4).setCellValue("Validateur");
+
+        int rowNum=1;
+
+        for(Conge conge : conges){
+
+            Row row = sheet.createRow(rowNum++);
+
+            if(demandeur!=null){
+                row.createCell(0).setCellValue(conge.getTypeConge().getNomType());
+                row.createCell(1).setCellValue(conge.getDateDemande().toString());
+                row.createCell(2).setCellValue(conge.getDateDebut().toString());
+                row.createCell(3).setCellValue(conge.getDateFin().toString());
+                row.createCell(4).setCellValue(conge.getValidateur().getNom() + " " + conge.getValidateur().getPrenom());
+            }
+        }
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            workbook.write(byteArrayOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] excelBytes = byteArrayOutputStream.toByteArray();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "Liste_Des_Conges.xlsx");
+
+        return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
+    }
+
+
+    @Override
+    public List<Conge> touteLaListeDesConges(){
+        List<Conge> conges = congeRepository.findByEtat(Etat.Accepte);
+        return conges;
+    }
+
+
+    @Override
+    public List<Employee> getEmployeesWithLeaveContainingDate(LocalDateTime targetDate) {
+        List<Employee> employees = new ArrayList<>();
+        List<Employee> uniqueEmployees = new ArrayList<>();
+
+        List<Conge> conges = new ArrayList<>();
+         congeRepository.findAll().forEach(conges::add);
+
+        for (Conge conge : conges) {
+            LocalDateTime dateDebutConge = conge.getDateDebut();
+            LocalDateTime dateFinConge = conge.getDateFin();
+
+            if(conge.getEtat().equals(Etat.Accepte)){
+                if (targetDate.toLocalDate().isEqual(dateDebutConge.toLocalDate())
+                        || targetDate.toLocalDate().isEqual(dateFinConge.toLocalDate())
+                        || (targetDate.toLocalDate().isAfter(dateDebutConge.toLocalDate()) && targetDate.toLocalDate().isBefore(dateFinConge.toLocalDate()))) {
+                           Employee employee = conge.getDemandeur();
+                             if (!uniqueEmployees.contains(employee)) {
+                               uniqueEmployees.add(employee);
+                                  employees.add(employee);
+                             }
+                }
+            }
+        }
+        return employees;
+    }
+
+    @Override
+    public List<Conge> getListCongeDesSuperviseurs (/*Integer idEmpl*/){
+        Employee e = employeeRepository.findById(2).orElse(null);
+
+            if (e.getRole().getNomRole().equals("superviseur")){
+                List<Conge> conges = congeRepository.findByDemandeurAndEtat(e,Etat.Accepte);
+                return conges ;
+            }
+        return null ;
+    }
+
+
+    @Override
+    public String getDelegueEmployeeName(Integer idConge) {
+        Conge congeOptional = congeRepository.findById(idConge).orElse(null);
+
+        if (congeOptional!=null) {
+            Integer idDelegue = congeOptional.getIdDelegue();
+
+            if (idDelegue != null) {
+                Employee employeeOptional = employeeRepository.findById(idDelegue).orElse(null);
+
+                if (employeeOptional!=null) {
+                    return employeeOptional.getNom() + employeeOptional.getPrenom()  ;
+                }
+            }
+        }
+
+        return null;
+    }
 }
 
 

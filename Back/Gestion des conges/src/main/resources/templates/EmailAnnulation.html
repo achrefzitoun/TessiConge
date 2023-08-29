@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all">Template for HTML email</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p>Cher <span style="font-weight: bold" th:text="${namevalidateur}">null</span>,</p>
+<p>J'espère que vous vous portez bien.</p>
+<p>Nous souhaitons vous informer qu'une mise à jour importante concerne l'employé <span style="font-weight: bold" th:text="${namedemandeur}">null</span> et sa demande de congé.</p>
+<p>En effet, nous avons été notifiés que <span style="font-weight: bold" th:text="${namedemandeur}">null</span> a décidé d'annuler sa demande de congé initialement soumise le <span style="font-weight: bold" th:text="${datedemande}">null</span> . </p>
+
+<p> Par conséquent, les dates de congé prévues du <span style="font-weight: bold" th:text="${datedebut}">null</span> au <span style="font-weight: bold" th:text="${datefin}">null</span> ne seront plus valides.</p>
+<p>Nous comprenons que cela peut entraîner des ajustements dans la planification des ressources et nous vous prions de bien vouloir prendre en compte cette modification dans l'organisation du travail de l'équipe.</p>
+<p>Nous apprécions grandement votre compréhension et votre gestion efficace de cette situation. Votre professionnalisme contribue à maintenir un environnement de travail harmonieux.</p>
+<p>
+    Cordialement.
+
+</p>
+</body>
+</html>

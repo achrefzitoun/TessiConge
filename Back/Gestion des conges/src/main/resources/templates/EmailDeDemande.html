@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all">Template for HTML email</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p>Cher <span style="font-weight: bold" th:text="${namevalidateur}">null</span>,</p>
+<p>J'espère que vous vous portez bien.</p>
+<p>Je tenais à vous informer qu'un de nos employés <span style="font-weight: bold" th:text="${namedemandeur}">null</span> a récemment soumis une demande de congé. Je souhaite attirer votre attention sur les détails de cette demande. </p>
+<p>Voici les informations relatives à la demande de conge : </p>
+<p>Nom de l'employé : <span style="font-weight: bold" th:text="${namedemandeur}">null</span> </p>
+<p>Date de soumission : <span style="font-weight: bold" th:text="${datedemande}">null</span> </p>
+<p>Période de congé demandée: De  <span style="font-weight: bold" th:text="${datedebut}">null</span> à <span style="font-weight: bold" th:text="${datefin}">null</span></p>
+<p>Durée de congé : <span style="font-weight: bold" th:text="${dure}">null</span> </p>
+<p>Type de congé : <span style="font-weight: bold" th:text="${type}">null</span> </p>
+<p> Conformément à notre processus de gestion des stages, je vous invite à examiner attentivement cette demande et à prendre les mesures nécessaires .</p>
+<p>
+    Cordialement.
+
+</p>
+</body>
+</html>
