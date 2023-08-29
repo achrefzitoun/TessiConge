@@ -55,8 +55,19 @@ public class EmployeeServices implements IEmplyeeServices {
 
     @Override
     public List<Employee> retrieveAllEmployee() {
-        List<Employee> employees = new ArrayList<Employee>();
-        employeeRepository.findAll().forEach(books1 -> employees.add(books1));
+        List<Employee> employees = new ArrayList<>();
+        employeeRepository.findAll().forEach(employees::add);
         return employees;
     }
+
+    @Override
+    public List<Employee> getEmployeeByPolitique(Integer idPolitique){
+        return  employeeRepository.getEmployeesByPolitiqueId(idPolitique);
+    }
+
+    @Override
+    public Employee getEmployeById(Integer id){
+        return employeeRepository.findById(id).orElse(null);
+    }
+
 }
