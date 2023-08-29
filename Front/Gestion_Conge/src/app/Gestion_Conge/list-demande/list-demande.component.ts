@@ -13,6 +13,7 @@ import { DatePipe } from '@angular/common';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { JourFerie } from 'src/app/Model/JourFerie';
+import { JourFerieService } from 'src/app/Services/JourFerie/jour-ferie.service';
 
 
 
@@ -102,7 +103,7 @@ export class ListDemandeComponent implements OnInit {
   joursFeries: JourFerie[] = [];
 
 
-  constructor(private congeserv: CongeServicesService, private messageService: MessageService, private datePipe: DatePipe, private sanitizer: DomSanitizer) { }
+  constructor(private jourFerieServices : JourFerieService,private congeserv: CongeServicesService, private messageService: MessageService, private datePipe: DatePipe, private sanitizer: DomSanitizer) { }
   typeConge: Partial<TypeConge>;
 
   ngOnInit() {
@@ -122,8 +123,7 @@ export class ListDemandeComponent implements OnInit {
     this.valNature = 'Normale';
     this.submitted = false;
     this.congeDialog = true;
-/*
-//Recuperation d'employee connectée : emp.politique.id
+    
     this.jourFerieServices.getJourFerieByPolitique(1).subscribe(data => {
       this.joursFeries = data;
       this.joursFeriesMap = new Map();
@@ -139,7 +139,7 @@ export class ListDemandeComponent implements OnInit {
         }
         this.joursFeriesMap.set(nomJour, { dateDebut, dateFin, dates });
       }
-    });*/
+    });
   }
 
 

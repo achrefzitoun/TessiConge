@@ -31,16 +31,19 @@ public interface ICongeRepository extends CrudRepository<Conge, Integer>{
     List<Conge> findAllByDateFinLessThan(LocalDateTime date);
 
 
-
     List<Conge> findByDateDebutBetweenAndEtat(LocalDateTime datedeb, LocalDateTime datefin, Etat etat);
 
     List<Conge> findByEtat(Etat etat);
 
     List<Conge> findByDemandeurAndEtat(Employee e , Etat etat);
 
+    Integer countByDateDemande(LocalDateTime localDateTime);
 
+    Integer countByDateDebutBetween(LocalDateTime dated, LocalDateTime datef);
 
+    Integer countByEtat(Etat etat);
 
+    Integer countByEtatAndDateDebutBetween(Etat etat, LocalDateTime dated, LocalDateTime datef);
 
 
 
