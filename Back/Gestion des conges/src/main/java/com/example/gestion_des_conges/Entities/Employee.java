@@ -31,7 +31,7 @@ public class Employee implements Serializable {
 
     String adresse;
 
-    long soldeConge;
+    double soldeConge;
 
     boolean autorisationJour = false;
 
@@ -57,6 +57,10 @@ public class Employee implements Serializable {
     @JsonIgnore
     List<Conge> listValidation;
     @ManyToOne
-            @JsonIgnore
+    @JsonIgnore
     Politique politique;
+
+    @OneToMany(mappedBy = "demandeur")
+    @JsonIgnore
+    List<Autorisation> autorisations;
 }
