@@ -1,0 +1,140 @@
+<div class="col-12">
+    <div class="card">
+        <p-toast></p-toast>
+        <p-toolbar styleClass="mb-4">
+            <ng-template pTemplate="left">
+                <h5 class="m-0">Gestion des jour ferié ( Politique : <label style="color: #447586;">{{
+                        politique.nomPolitique }}</label> )</h5>
+            </ng-template>
+            <ng-template pTemplate="right">
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                    (click)="openNew()"></button>
+            </ng-template>
+        </p-toolbar>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12">
+                <p-calendar class="max-w-full" [inline]="true" [showWeek]="true" [(ngModel)]="selectedDate"
+                    (onSelect)="onDateSelect($event)" dateFormat="dd/mm/yy">
+                    <ng-template pTemplate="date" let-date>
+                        <span [ngStyle]="{ color: isDateDecorated(date) ? '#012169' : 'inherit',
+                    'background-color': isDateDecorated(date) ? '#ADD8E6' : 'transparent',
+                    'border-radius': isDateDecorated(date) ? '50%' : '0',
+                    'display': 'inline-block',
+                    'width': '24px',
+                    'height': '24px',
+                    'text-align': 'center',
+                    'line-height': '24px'
+                  }">
+                            {{ date.day }}
+                        </span>
+                    </ng-template>
+                </p-calendar>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-------------------New----------------------->
+<p-dialog [(visible)]="addDialog" [style]="{width: '1000px' , height:'1500px'}" [(header)]="message" [modal]="true"
+    class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="Nom">Nom</label>
+            <input type="text" pInputText id="name" [(ngModel)]="newJourFerie.nomDate" required autofocus />
+        </div>
+        <div class="field">
+            <label for="Nom">Date debut</label>
+            <p-calendar [(ngModel)]="date1" [showIcon]="true" [showTime]="true" [showSeconds]="true"
+                inputId="icon" dateFormat="dd/mm/yy"></p-calendar>
+        </div>
+        <div class="field">
+            <label for="Nom">Date fin</label>
+            <p-calendar [(ngModel)]="date2" [showIcon]="true" [showTime]="true" [showSeconds]="true"
+                inputId="icon" dateFormat="dd/mm/yy"></p-calendar>
+        </div>
+
+        <h5>Politiques </h5>
+        <p-multiSelect [options]="selectedPolitiques" [(ngModel)]="newJourFeriePolitiques"
+            placeholder="Selectionner le(s) politique(s)" optionLabel="nomPolitique" class="multiselect-custom"
+            display="chip">
+            <ng-template let-p>
+                <div class="flex align-items-center">
+                    <span class="ml-2">{{p.nomPolitique}}</span>
+                </div>
+            </ng-template>
+        </p-multiSelect>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="hideAddDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNew()"></button>
+    </ng-template>
+</p-dialog>
+
+
+<!-------------------Edit---------------------->
+<p-dialog [(visible)]="editDialog" [style]="{width: '1000px' , height:'1500px'}" [(header)]="message" [modal]="true"
+    class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="Nom">Nom</label>
+            <input type="text" pInputText id="name" [(ngModel)]="selectedJ.nomDate" required />
+        </div>
+        <div class="field">
+            <label for="Nom">Date debut</label>
+            <p-calendar [(ngModel)]="date1" [showIcon]="true" [showTime]="true" [showSeconds]="true"
+                inputId="icon" dateFormat="dd/mm/yy"></p-calendar>
+        </div>
+        <div class="field">
+            <label for="Nom">Date fin</label>
+            <p-calendar [(ngModel)]="date2" [showIcon]="true" [showTime]="true" [showSeconds]="true"
+                inputId="icon" dateFormat="dd/mm/yy"></p-calendar>
+        </div>
+        <p-dialog header="Politiques" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '30vw'}"
+            [breakpoints]="{'960px': '75vw'}">
+            <p-table #dt [value]="politiques" [columns]="cols" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom du prolitique</th>
+                        <th>Description</th>
+                        <th>Nombre de jour ouvrable</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-politiques>
+                    <tr>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Category</span>
+                            {{politiques.idPolitique}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Code</span>
+                            {{politiques.nomPolitique}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Name</span>
+                            {{politiques.descriptionPolitique}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Category</span>
+                            {{politiques.nombreJourOuvrable}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <ng-template pTemplate="footer">
+                <button pButton icon="pi pi-check" (click)="display=false" label="Ok"
+                    class="p-button-outlined"></button>
+            </ng-template>
+        </p-dialog>
+        <div class="grid">
+            <div class="col-12">
+                <button (click)="display=true" pButton icon="pi pi-external-link" label="List des politiques"></button>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="hideEditDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveEdit()"></button>
+    </ng-template>
+</p-dialog>

@@ -25,6 +25,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/demande")
+@CrossOrigin(origins = "*")
 public class DemandeRestController {
     private final IDemandeService demandeService;
 
@@ -64,15 +65,14 @@ public class DemandeRestController {
         return demandeService.updateConge(conge,idtype);
     }
 
-    @GetMapping("/getConge/{id}")
-    Conge getConge(@PathVariable("id") Integer id){
-
-        return demandeService.retrieveConge(id);
+    @GetMapping("/getConge")
+    Conge getConge(@RequestParam("idConge") String idConge){
+        int idC = Integer.parseInt(idConge);
+        return demandeService.retrieveConge(idC);
     }
 
     @GetMapping("/allConge")
     List<Conge> getAllConge(){
-
         return demandeService.getAllConge();
     }
 

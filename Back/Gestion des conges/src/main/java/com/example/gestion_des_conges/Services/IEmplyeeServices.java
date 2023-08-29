@@ -11,4 +11,5 @@ public interface IEmplyeeServices {
     public void deleteEmployee(int id);
     public Employee retrieveEmployee(int id);
     public List<Employee> retrieveAllEmployee();
+
 }

@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { GestionCongeRoutingModule } from './gestion-conge-routing.module';
 
 @NgModule({
-    declarations: [],
+    declarations: [
+  ],
     imports: [
         CommonModule,
         GestionCongeRoutingModule

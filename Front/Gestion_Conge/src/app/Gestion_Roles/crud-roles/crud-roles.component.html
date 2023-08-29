@@ -6,23 +6,21 @@
                 <ng-template pTemplate="left">
                     <h5 class="m-0">Gestion des roles</h5>
                 </ng-template>
-
                 <ng-template pTemplate="right">
                     <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
                         (click)="openNew()"></button>
-                    <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger"
-                        (click)="deleteSelectedRoles()" [disabled]="!selectedRoles || !selectedRoles.length"></button>
                 </ng-template>
             </p-toolbar>
 
             <p-table #dt [value]="roles" [columns]="cols" responsiveLayout="scroll" [rows]="10"
-                [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true"
+                style="width: max-content;"
+                [globalFilterFields]="['idRole','nomRole','description']" [paginator]="true"
                 [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                 [(selection)]="selectedRoles" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0"></h5>
+                        <h5 class="m-0">List des roles</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
@@ -32,37 +30,38 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 3rem">
-                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                        </th>
-                        <th pSortableColumn="code">ID role <p-sortIcon field="code"></p-sortIcon></th>
-                        <th pSortableColumn="name">Nom role <p-sortIcon field="name"></p-sortIcon></th>
-                        <th pSortableColumn="price">Description <p-sortIcon field="price"></p-sortIcon></th>
+                        <th pSortableColumn="idRole">ID<p-sortIcon field="idRole"></p-sortIcon></th>
+                        <th pSortableColumn="nomRole">Nom role<p-sortIcon field="nomRole"></p-sortIcon></th>
+                        <th pSortableColumn="description">description <p-sortIcon field="description"></p-sortIcon></th>
+                        <th pSortableColumn="employees">Employees<p-sortIcon field="employees"></p-sortIcon></th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-role>
-                    <tr>
-                        <td>
-                            <p-tableCheckbox [value]="role"></p-tableCheckbox>
-                        </td>
-                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">ID role</span>
+                    <tr>    
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">ID</span>
                             {{role.idRole}}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Nom role</span>
+                        <td style="width:18%; min-width:10rem;">
+                            <span class="p-column-title">nom</span>
                             {{role.nomRole}}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Description</span>
+                        <td style="width:18%; min-width:10rem;">
+                            <span class="p-column-title">description</span>
                             {{role.description}}
+                        </td>
+                        <td style="width:18%; min-width:10rem;">
+                            <span class="p-column-title">Consulter la liste des employees</span>
+                            <button pButton pRipple type="button" label="List employees" class="p-button-text"
+                                (click)="viewEmployees(role)"></button>
                         </td>
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil"
                                     class="p-button-rounded p-button-success mr-2" (click)="editRole(role)"></button>
                                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
-                                    (click)="deleteRole(role)"></button>
+                                    (click)="deleteRole(role)" [disabled]="role.nomRole == 'admin' || role.nomRole == 'superviseur' || role.nomRole == 'employee'"></button>
                             </div>
                         </td>
                     </tr>
@@ -70,23 +69,23 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="roleDialog" [style]="{width: '450px'}" header="Role details" [modal]="true"
+        <p-dialog [(visible)]="roleDialog" [style]="{width: '450px'}" header="Role Details" [modal]="true"
             class="p-fluid">
             <ng-template pTemplate="content">
+
                 <div class="field">
-                    <label for="name">Nom role</label>
+                    <label for="name">Name</label>
                     <input type="text" pInputText id="name" [(ngModel)]="role.nomRole" required autofocus
-                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !role.nomRole}" />
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !role.nomRole">Nom est obligatoire.</small>
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !role.nomRole}" [disabled]="role.nomRole == 'admin' || role.nomRole == 'superviseur' || role.nomRole == 'employee'" />
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !role.nomRole">Name is required.</small>
                 </div>
                 <div class="field">
                     <label for="description">Description</label>
                     <textarea id="description" pInputTextarea [(ngModel)]="role.description" required rows="3"
                         cols="20"></textarea>
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !role.description">Entrer une
-                        description.</small>
                 </div>
             </ng-template>
+
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
                     (click)="hideDialog()"></button>
@@ -111,13 +110,50 @@
         <p-dialog [(visible)]="deleteRolesDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span>Etes-vous sûr que vous voulez supprimer le(s) role(s) selectionné(s)</span>
+                <span>Êtes-vous sûr de vouloir supprimer les roles sélectionnés?</span>
             </div>
             <ng-template pTemplate="footer">
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
                     (click)="deleteRolesDialog = false"></button>
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
                     (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="employeeDiaglog" header="List employee" [modal]="true" [style]="{width:'450px'}">
+            <p-table #dt [value]="employees" [columns]="cols" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prenom</th>
+                        <th>Entite</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-employee>
+                    <tr>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Category</span>
+                            {{employee.idEmp}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Code</span>
+                            {{employee.nom}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Name</span>
+                            {{employee.prenom}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Category</span>
+                            {{employee.entite}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="employeeDiaglog = false"></button>
             </ng-template>
         </p-dialog>
     </div>

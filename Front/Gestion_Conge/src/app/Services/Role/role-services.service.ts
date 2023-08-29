@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Employee } from 'src/app/Model/Employee';
 import { Role } from 'src/app/Model/Role';
 
 @Injectable({
@@ -30,5 +31,9 @@ export class RoleServicesService {
 
   retrieveAllRoles(): Observable<Role[]> {
     return this.http.get<Role[]>(`${this.apiUrl}/ViewRoles`);
+  }
+
+  getEmployeesByRole(id: number): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}/getEmployeesByRole/${id}`);
   }
 }

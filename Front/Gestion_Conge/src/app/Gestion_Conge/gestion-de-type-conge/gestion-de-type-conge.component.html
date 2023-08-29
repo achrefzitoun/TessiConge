@@ -1,0 +1,142 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <h5 class="m-0">Gestion des types de congés</h5>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <button pButton pRipple label="Nouveau" icon="pi pi-plus" class="p-button-success mr-2"
+                        (click)="openNew()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="types" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                style="width: max-content;"
+                [globalFilterFields]="['idTypeConge','nomType','description','natureType','nbrJours']"
+                [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedTypes" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">List des types</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="idTypeConge">ID<p-sortIcon field="idTypeConge"></p-sortIcon></th>
+                        <th pSortableColumn="nomType">Nom type<p-sortIcon field="nomType"></p-sortIcon></th>
+                        <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+                        <th pSortableColumn="natureType">Nature<p-sortIcon field="natureType"></p-sortIcon></th>
+                        <th pSortableColumn="nbrJours">Nombres des jours<p-sortIcon field="nbrJours"></p-sortIcon>
+                        </th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-type>
+                    <tr>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">ID</span>
+                            {{type.idTypeConge}}
+                        </td>
+                        <td style="width:18%; min-width:10rem;">
+                            <span class="p-column-title">nom</span>
+                            {{type.nomType}}
+                        </td>
+                        <td style="width:18%; min-width:10rem;">
+                            <span class="p-column-title">description</span>
+                            {{type.description}}
+                        </td>
+                        <td style="width:18%; min-width:10rem;">
+                            <span class="p-column-title">nature</span>
+                            {{type.natureType}}
+                        </td>
+                        <td style="width:18%; min-width:10rem;">
+                            <span class="p-column-title">Nombre des jours</span>
+                            {{type.nbrJours}}
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2" (click)="editType(type)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                    (click)="deleteType(type)" [disabled]="type.idTypeConge<=9"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="typeDialoge" [style]="{width: '500px' , height:'1300px'}" header="Nouveau type"
+            [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="name">Nom du type :</label>
+                    <input type="text" pInputText id="name" [(ngModel)]="type.nomType" required autofocus
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !type.nomType}"
+                        [disabled]="type.idTypeConge!=null" />
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !type.nomType">Entrer le nom.</small>
+                </div>
+                <div class="field">
+                    <label for="description">Description du type :</label>
+                    <textarea id="description" pInputTextarea [(ngModel)]="type.description" required rows="3" cols="20"
+                        [disabled]="type.idTypeConge!=null"></textarea>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !type.description">Entrer le nom.</small>
+                </div>
+                <div class="field">
+                    <label for="name">Politiques :</label>
+                    <p-multiSelect [options]="selectedPolitiques" [(ngModel)]="politiques"
+                        placeholder="Selectionner le(s) politique(s)" optionLabel="nomPolitique"
+                        class="multiselect-custom" display="chip">
+                        <ng-template let-p>
+                            <div class="flex align-items-center">
+                                <span class="ml-2">{{p.nomPolitique}}</span>
+                            </div>
+                        </ng-template>
+                    </p-multiSelect>
+                </div>
+                <div class="field">
+                    <label for="description">Nombre des jours ouvrables :</label>
+                    <p-inputNumber mode="decimal" [showButtons]="true" [min]="0" [max]="100"
+                        [(ngModel)]="type.nbrJours">
+                    </p-inputNumber>
+                </div>
+                <div class="field">
+                    <label for="description">Nature de type:</label>
+                    <p-selectButton [options]="natureType" [(ngModel)]="type.natureType"
+                        (click)="getNature()"></p-selectButton>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    *ngIf="type.idTypeConge == null" (click)="saveType()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    *ngIf="type.idTypeConge != null" (click)="saveEditType()"></button>
+            </ng-template>
+        </p-dialog>
+
+
+        <p-dialog [(visible)]="deleteTypeDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="type">Etes-vous sûr que vous voulez supprimer le type : <b>{{type.nomType}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deleteTypeDialog = false; type = null"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+    </div>
+</div>

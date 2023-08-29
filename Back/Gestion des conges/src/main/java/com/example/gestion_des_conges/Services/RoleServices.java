@@ -48,6 +48,13 @@ public class RoleServices implements IRoleServices {
 
     @Override
     public void deleteRole(int id) {
+        Role role = roleRepository.findById(id).orElse(null);
+
+        for(Employee e : employeeRepository.findByRole(role)){
+            e.setRole(null);
+            employeeRepository.save(e);
+        }
+
         roleRepository.deleteById(id);
     }
 
@@ -64,8 +71,13 @@ public class RoleServices implements IRoleServices {
     }
 
     @Override
-    public List<Employee> retrieveEmployeesByRole(Role role) {
-        List<Employee> employees = employeeRepository.findByRole(role);
+    public List<Employee> retrieveEmployeesByRole(int id) {
+        Role role = roleRepository.findById(id).orElse(null);
+        List<Employee> employees = new ArrayList<>();
+        if(role!=null){
+            employees =employeeRepository.findByRole(role);
+
+        }
         return employees;
     }
 

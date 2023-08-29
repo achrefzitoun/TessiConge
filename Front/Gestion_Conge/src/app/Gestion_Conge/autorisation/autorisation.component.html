@@ -1,0 +1,55 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Autorisation : </h5>
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12">
+                    <label htmlFor="dateDebut">Date : </label>
+
+                    <p-calendar [(ngModel)]="date" [showIcon]="true" [showTime]="true" timeOnly="true" inputId="icon" dateFormat="dd/mm/yy">
+                        <ng-template pTemplate="date" let-date>
+                            <span [ngStyle]="{ color: isDateDecorated(date) ? '#012169' : 'inherit',
+                        'background-color': isDateDecorated(date) ? '#ADD8E6' : 'transparent',
+                        'border-radius': isDateDecorated(date) ? '50%' : '0',
+                        'display': 'inline-block',
+                        'width': '24px',
+                        'height': '24px',
+                        'text-align': 'center',
+                        'line-height': '24px',
+                    }">
+                                {{ date.day }}
+                            </span>
+                        </ng-template>
+                    </p-calendar>
+                </div>
+                <div class="field col-12">
+                    <label htmlFor="zip">Description : </label>
+                    <textarea rows="3" cols="2000" placeholder="Votre message" [(ngModel)]="autorisation.description"
+                        pInputTextarea></textarea>
+                </div>
+
+                <div class="field col-12">
+                    <p-toolbar styleClass="mb-1">
+                        <ng-template pTemplate="left">
+                            <h6>Autorisation : 2 Heures.</h6>
+                        </ng-template>
+                        <ng-template pTemplate="right">
+                            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"></button>
+                            <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                                (click)="save()" [disabled]="!date || !autorisation.description"></button>
+                        </ng-template>
+                    </p-toolbar>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog header="Autorisation" [(visible)]="mess" [modal]="true" showEffect="fade" [style]="{width: '30vw'}"
+    [breakpoints]="{'960px': '75vw'}">
+        <h4 class="line-height-3 m-0">{{ message }}</h4>
+
+        <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-check" (click)="mess=false" label="Ok" class="p-button-outlined"></button>
+    </ng-template>
+</p-dialog>

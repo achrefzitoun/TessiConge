@@ -10,4 +10,7 @@ public interface IPolitiqueServices {
     public void deletePolitique(int id);
     public Politique retrievePolitique(int id);
     public List<Politique> retrieveAllPolitique();
-}
+    public List<Politique> retrieveAllPoitiquesbyJourFerie(int idJourFerie);
+    public List<Politique> retrieveAllPolitiquesByType(int idTypeConge);
+
+    }
