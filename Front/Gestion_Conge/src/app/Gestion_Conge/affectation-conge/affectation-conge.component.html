@@ -1,0 +1,111 @@
+<div class="col-12">
+    <div class="card">
+        <h5>Affecter un congé à un employée</h5>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12">
+                <label htmlFor="dateFin">Employée :</label>
+                <p-autoComplete [(ngModel)]="employee" [suggestions]="filteredEmployees"
+                    (completeMethod)="filterEmployee($event)" field="nomComplete" [dropdown]="true" #emp="ngModel">
+                    <ng-template let-employee pTemplate="item">
+                        <i class="pi pi-user"></i>
+                        {{ employee.nom }} {{ employee.prenom }}
+                    </ng-template>
+                </p-autoComplete>
+            </div>
+            <div class="field col-12" *ngIf="!employee.idEmp && employee && emp.touched">
+                <label htmlFor="invalidemp">Employée non trouver</label>
+            </div>
+            <div class="field col-12" *ngIf="employee.idEmp">
+                <label htmlFor="dateFin">Nature congé :</label>
+                <p-selectButton [options]="natureConge" [(ngModel)]="valNature" (click)="getType()"></p-selectButton>
+            </div>
+            <div class="field col-12" *ngIf="valNature && employee.idEmp">
+                <label htmlFor="type">Type congé :</label>
+                <p-dropdown [options]="typesConges" optionLabel="nomType" [(ngModel)]="typeConge"></p-dropdown>
+            </div>
+
+            <!-- Dates normale -->
+            <div class="field col-12" *ngIf="typeConge.natureType">
+                <label htmlFor="dateDebut">Date debut</label>
+                <p-calendar [(ngModel)]="date1" [showIcon]="true" inputId="icon" dateFormat="dd/mm/yy">
+                    <ng-template pTemplate="date" let-date>
+                        <span [ngStyle]="{ color: isDateDecorated(date) ? '#012169' : 'inherit',
+                    'background-color': isDateDecorated(date) ? '#ADD8E6' : 'transparent',
+                    'border-radius': isDateDecorated(date) ? '50%' : '0',
+                    'display': 'inline-block',
+                    'width': '24px',
+                    'height': '24px',
+                    'text-align': 'center',
+                    'line-height': '24px'
+                }">
+                            {{ date.day }}
+                        </span>
+                    </ng-template>
+                </p-calendar>
+            </div>
+            <div class="field col-12"
+                *ngIf="typeConge.natureType && typeConge.nomType != 'Conge de paternite' && typeConge.nomType != 'Conge de maternite' && typeConge.nomType != 'Conge de mariage' && typeConge.nomType != 'Demi jour matin' && typeConge.nomType != 'Demi jour après midi' ">
+                <label htmlFor="dateFin">Date fin</label>
+                <p-calendar [(ngModel)]="date2" [showIcon]="true" inputId="icon" dateFormat="dd/mm/yy">
+                    <ng-template pTemplate="date" let-date>
+                        <span [ngStyle]="{ color: isDateDecorated(date) ? '#012169' : 'inherit',
+                            'background-color': isDateDecorated(date) ? '#ADD8E6' : 'transparent',
+                            'border-radius': isDateDecorated(date) ? '50%' : '0',
+                            'display': 'inline-block',
+                            'width': '24px',
+                            'height': '24px',
+                            'text-align': 'center',
+                            'line-height': '24px'
+                        }">
+                            {{ date.day }}
+                        </span>
+                    </ng-template>
+                </p-calendar>
+                <!--p-calendar [(ngModel)]="date2" [showIcon]="true" inputId="icon"></p-calendar-->
+            </div>
+            <div class="field col-12" *ngIf="!date2 && date1>=date2">
+                <h4>La date de début ne peut pas être après la date de fin.</h4>
+            </div>
+            <!-- Description -->
+
+            <div class="field col-12" *ngIf="valNature">
+                <label htmlFor="description ">Description</label>
+                <textarea rows="3" cols="2000" placeholder="Votre message" [(ngModel)]="conge.description"
+                    pInputTextarea></textarea>
+            </div>
+
+            <!-- Pièce jointe -->
+
+            <div class="field col-12 md:col-6" *ngIf="valNature && typeConge.description == 'Maladie'">
+                <label htmlFor="file">Ajouter une pièce jointe (Obligatoire)</label><br>
+                <input type="file" mode="basic" name="file" rows="4" [maxFileSize]="1000000"
+                    (change)="onFileSelected($event)">
+            </div>
+
+
+            <div class="field col-12">
+                <p-toolbar styleClass="mb-1">
+                    <ng-template pTemplate="left">
+                        <h6>La réponse à votre congé sera traitée dans les plus brefs délais.</h6>
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"></button>
+                        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="save()"
+                            [disabled]="!employee || !date1 || (!date2 && typeConge.nomType != 'Conge de paternite' && typeConge.nomType != 'Conge de maternite' && typeConge.nomType != 'Conge de mariage' && typeConge.nomType != 'Demi jour matin' && typeConge.nomType != 'Demi jour après midi')  || !typeConge || !conge.description || (!date2 && date1>=date2)"></button>
+                    </ng-template>
+                </p-toolbar>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<p-dialog header="Dialog" [(visible)]="mess" [modal]="true" showEffect="fade" [style]="{width: '30vw'}"
+    [breakpoints]="{'960px': '75vw'}">
+    <p class="line-height-3 m-0">
+        {{ message }}
+    </p>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-check" (click)="mess=false" label="Ok" class="p-button-outlined"></button>
+    </ng-template>
+</p-dialog>
