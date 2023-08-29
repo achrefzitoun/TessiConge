@@ -1,0 +1,30 @@
+
+<div class="col-12">
+    <div class="card p-fluid">
+        <p-fieldset legend="Délégation de validation de congés" class="line-height-3 m-0">
+            <div class="p-formgrid grid">
+                <div class="field col">
+                    <label for="name"> <strong> Date debut de congé </strong> </label>
+                    <p-calendar [showIcon]="true" inputId="icon" [(ngModel)]="startDate" required
+                        autofocus></p-calendar>
+                </div>
+                <div class="field col">
+                    <label for="name"> <strong> Date Fin de congé </strong> </label>
+                    <p-calendar [showIcon]="true" inputId="icon" [(ngModel)]="endDate" required
+                        autofocus></p-calendar>
+                </div>
+            </div>
+
+            <label for="name"> <strong> Liste des Délégués </strong> </label>
+            <p-menu [model]="panelMenuItems"></p-menu>
+            
+           
+        </p-fieldset>
+        <div  style="justify-content: flex-end;" >
+            <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text " style="width: 100px;" ></button>
+            <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text" style="width: 100px;" (click)="saveDelegation()"></button>
+        </div>
+        
+    </div>
+
+</div>

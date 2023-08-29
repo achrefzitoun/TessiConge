@@ -1,0 +1,254 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Nouveau" icon="pi pi-plus" class="p-button-success mr-2"
+                            (click)="openNew()"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <button pButton pRipple label="Export(Excel)" icon="pi pi-upload" class="p-button-help"
+                        (click)="exportConge()"></button>
+                    <button pButton type="button" label="Historique" icon="pi pi-print" class="p-button-danger"
+                        (click)="displayPdf()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="conges" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['typeConge.nomType','dateDemande','dateDebut','dateFin','description','etat']"  [paginator]="true"
+                [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedConges" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Liste des demandes</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        
+                        <th pSortableColumn="typeConge.nomType">Type Conge <p-sortIcon field="typeConge.nomType"></p-sortIcon></th>
+                        <th pSortableColumn="dateDemande">Date Demande <p-sortIcon field="dateDemande"></p-sortIcon></th>
+                        <th pSortableColumn="dateDebut">Date debut <p-sortIcon field="dateDebut"></p-sortIcon></th>
+                        <th pSortableColumn="dateFin">Date fin <p-sortIcon field="dateFin"></p-sortIcon></th>
+                        <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+                        <th pSortableColumn="etat">Status <p-sortIcon field="etat"></p-sortIcon>
+                        </th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-conge>
+                    <tr>
+                       
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Type Conge</span>
+                            {{conge.typeConge.nomType}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Date Demande</span>
+                            {{conge.dateDemande | date: 'dd/MM/yyyy HH:mm'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Date debut</span>
+                            {{conge.dateDebut | date: 'dd/MM/yyyy HH:mm'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Date fin</span>
+                            {{conge.dateFin | date: 'dd/MM/yyyy HH:mm'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Description</span>
+                            {{conge.description}}
+                        </td>
+                        <td style="width: 14%; min-width: 10rem;">
+                            <span class="p-column-title">Status</span>
+                            <ng-container *ngIf="getClassByEtat(conge.etat) === 'status-instock'">
+                                <span class="product-badge status-instock">{{ conge.etat }}</span>
+                            </ng-container>
+                            <ng-container *ngIf="getClassByEtat(conge.etat) === 'status-lowstock'">
+                                <span class="product-badge status-lowstock">{{ conge.etat }}</span>
+                            </ng-container>
+                            <ng-container *ngIf="getClassByEtat(conge.etat) === 'status-outofstock'">
+                                <span class="product-badge status-outofstock">{{ conge.etat }}</span>
+                            </ng-container>
+                            <ng-container *ngIf="getClassByEtat(conge.etat) === 'status-renewal'">
+                                <span class="customer-badge status-renewal">{{ conge.etat }}</span>
+                            </ng-container>
+                        </td>
+
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2" (click)="editConge(conge)"
+                                    *ngIf="conge.etat =='En_Attente'"></button>
+
+                                <button pButton pRipple type="button" icon="pi pi-times"
+                                    class="p-button-rounded p-button-danger p-button-outlined"
+                                    (click)="deleteConge(conge.idConge)" *ngIf="conge.etat =='En_Attente'"></button>
+
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        <p-dialog [(visible)]="pdfDialog" [modal]="true" [style]="{ width: '70%', 'height': '2000px'  }">
+            
+            <iframe [src]="pdfUrl" width="100%" height="100%" frameborder="0"></iframe>
+            <p-footer>
+              <button pButton type="button" label="Fermer" (click)="pdfDialog = false"></button>
+             
+            </p-footer>
+          </p-dialog>
+          
+          
+
+        <p-dialog [(visible)]="congeDialog" [style]="{width: '550px' , 'height': '1000px'}" header="Ajouter demande de conge" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label><strong>Nature de congé </strong> </label>
+                    <p-selectButton [options]="natureConge" [(ngModel)]="valNature"
+                        (click)="getType()"></p-selectButton>
+                </div>
+                <div class="field col-12" *ngIf="valNature">
+                    <label htmlFor="type"><strong> Type congé : </strong></label>
+                    <p-dropdown [options]="typesConges" optionLabel="nomType" [(ngModel)]="type" (click)="calculateDuration()"></p-dropdown>
+                </div>
+            
+                <div class="field">
+                    <label for="name"> <strong> Date debut </strong> </label>
+                    <p-calendar [showIcon]="true" [showTime]="true" inputId="icon" [(ngModel)]="startDate" required
+                    (ngModelChange)="updateEndDate()"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !startDate">date debut is
+                        required.</small>
+                </div>
+                <div class="field" *ngIf="valNature == 'Speciale' && type.nomType !='Congé de maladie'">
+                    <label for="name"> <strong>Date Fin </strong> </label>
+                    <p-calendar [showIcon]="true" [showTime]="true" inputId="icon" [(ngModel)]="endDate" required autofocus></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !endDate">date fin is required.</small>
+                  </div>
+
+                <div class="field" *ngIf="valNature == 'Normale' || (valNature == 'Speciale' && type.nomType =='Congé de maladie')">
+                    <label for="name"> <strong>Date Fin </strong> </label>
+                    <p-calendar [showIcon]="true" [showTime]="true" inputId="icon" [(ngModel)]="endDate" required autofocus
+                        (click)="calculateDuration()"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !endDate">date fin is
+                        required.</small>
+                </div>
+                <div class="field" *ngIf=" valNature == 'Speciale' && type.nomType !='Demi jour matin' ||  type.nomType !=' Demi jour après midi'" >
+                    <label for="name"><strong>Durée (Jours)</strong></label>
+                    <span class="p-float-label">
+                        <input id="float-input" type="number" pInputText [value]="calculatedDuration" readonly>
+                    </span>
+                </div>
+
+                <div class="field" *ngIf="valNature == 'Normale'">
+                    <label for="autreDescription"><strong>Description </strong></label>
+                    <textarea pInputText id="autreDescription" [(ngModel)]="conge.description"></textarea>
+                </div>
+                <div class="field col-12" *ngIf="valNature && type.nomType == 'Congé de maladie'">
+                    <label for="name"> <strong>Piece jointe (Obligatoire*) </strong> </label>
+                    <p-fileUpload (onSelect)="onFileSelected($event)" [multiple]="true" accept="image/*"
+                        [maxFileSize]="1000000">
+                    </p-fileUpload>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text"
+                    (click)="saveConge()"></button>
+            </ng-template>
+        </p-dialog>
+
+
+        <p-dialog [(visible)]="editDialog" [style]="{width: '550px'}" header="Modifier demande de congé" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label><strong>Nature de congé </strong> </label>
+                    <p-selectButton [options]="natureConge" [(ngModel)]="valNature"
+                        (click)="getType()"></p-selectButton>
+                </div>
+                <div class="field col-12">
+                    <label htmlFor="type"><strong> Type congé : </strong></label>
+                    <p-dropdown [options]="typesConges" optionLabel="nomType" [(ngModel)]="type"></p-dropdown>
+                </div>
+                <div class="field" *ngIf="valNature == 'Normale'">
+                    <label for="autreDescription"><strong>Description </strong></label>
+                    <textarea pInputText id="autreDescription" [(ngModel)]="conge.description"></textarea>
+                </div>
+                <div class="field">
+                    <label for="dated"> <strong> Date debut </strong> </label>
+                    <p-calendar [showIcon]="true" inputId="icon" [(ngModel)]="startDate" required autofocus
+                        (onSelect)="calculateDuration()"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !startDate">date debut is
+                        required.</small>
+                </div>
+                <div class="field" *ngIf="valNature == 'Normale'">
+                    <label for="datef"> <strong>Date Fin </strong> </label>
+                    <p-calendar [showIcon]="true" inputId="icon" [(ngModel)]="endDate" required autofocus
+                        (click)="calculateDuration()"></p-calendar>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !endDate">date fin is
+                        required.</small>
+                </div>
+                <div class="field" *ngIf="valNature == 'Normale'">
+                    <label for="name"><strong>Durée (Jours) </strong></label>
+                    <span class="p-float-label">
+                        <input id="float-input" type="number" pInputText [(ngModel)]="conge.duree"
+                            [value]="calculatedDuration" readonly>
+                    </span>
+                </div>
+                <div class="field" *ngIf="valNature == 'Speciale'">
+                    <label for="name"><strong>Durée (Jours) </strong></label>
+                    <span class="p-float-label">
+                        <input id="float-input" type="number" pInputText [(ngModel)]="conge.duree" readonly>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-6" *ngIf="valNature && type.nomType == 'Congé de maladie'">
+                    <label for="name"> <strong>Piece jointe (Obligatoire*) </strong> </label>
+                    <p-fileUpload (onSelect)="onFileSelected($event)" [multiple]="true" accept="image/*"
+                        [maxFileSize]="1000000">
+                    </p-fileUpload>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text"
+                    (click)="saveConge()"></button>
+            </ng-template>
+        </p-dialog>
+        <!--Annuler-->
+        <p-dialog [(visible)]="deleteCongeDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="conge">Etes-vous sûr(e) de vouloir annuler ce congé <b></b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non"
+                    (click)="deleteCongeDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui"
+                    (click)="confirmDelete(conge.idConge)"></button>
+            </ng-template>
+        </p-dialog>
+        <p-dialog [(visible)]="deleteCongesDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Are you sure you want to delete selected products?</span>
+            </div>
+            <ng-template pTemplate="footer" let-conge>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deleteCongesDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDeleteSelected(conge.idConge)"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

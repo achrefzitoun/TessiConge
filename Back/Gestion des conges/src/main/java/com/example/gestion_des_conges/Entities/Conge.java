@@ -1,5 +1,6 @@
 package com.example.gestion_des_conges.Entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,8 +23,10 @@ public class Conge implements Serializable {
 
     LocalDateTime dateDemande = LocalDateTime.now();
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime dateDebut;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime dateFin;
 
     float duree ;

@@ -8,31 +8,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MotifRefusServices implements IMotifRefusServices {
-    @Autowired
-    private final ICongeRepository congeRepository;
 
-    @Autowired
-    private final IEmployeeRepository employeeRepository;
-
-    @Autowired
-    private final IJourFerieRepository jourFerieRepository;
-
-    @Autowired
     private final IMotifRefusRepository motifRefusRepository;
 
-    @Autowired
-    private final IPolitiqueRepository politiqueRepository;
-
-    @Autowired
-    private final IRoleRepository roleRepository;
-
-    @Autowired
-    private final ITypeCongeRepository typeCongeRepository;
 
     @Override
     public MotifRefus addMotifRefus(MotifRefus motifRefus) {
@@ -63,6 +47,13 @@ public class MotifRefusServices implements IMotifRefusServices {
     @Override
     public MotifRefus retrieveMotifByConge(Conge conge) {
         return conge.getMotifRefus();
+    }
+
+    @Override
+    public List<MotifRefus> getAllMotifRefus(){
+        List<MotifRefus> motifRefuses = new ArrayList<>();
+        motifRefusRepository.findAll().forEach(motifRefuses::add);
+        return motifRefuses;
     }
 
 

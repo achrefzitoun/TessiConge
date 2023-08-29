@@ -1,0 +1,138 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Ajouter" icon="pi pi-plus" class="p-button-success mr-2"
+                            (click)="openNew()"></button>
+                        <button pButton pRipple label="Supprimer" icon="pi pi-trash" class="p-button-danger"
+                            (click)="deleteSelectedPolitiques()"
+                            [disabled]="!selectedPolitiques || !selectedPolitiques.length"></button>
+                    </div>
+                </ng-template>
+
+            </p-toolbar>
+
+            <p-table #dt [value]="politiques" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nomPolitique','descriptionPolitique','nombreJourOuvrable']" [paginator]="true"
+                [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedPolitiques" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Gestion des Politiques</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"  (input)="onGlobalFilter(dt, $event)"  placeholder="Search..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="nomPolitique"> Nom <p-sortIcon field="nomPolitique"></p-sortIcon></th>
+                        <th pSortableColumn="descriptionPolitique">Description <p-sortIcon field="descriptionPolitique"></p-sortIcon></th>
+                        <th pSortableColumn="nombreJourOuvrable"> Nombre de jours ouvrable <p-sortIcon field="nombreJourOuvrable"></p-sortIcon></th>
+                        <th>     </th>
+                        <th>     </th>
+                        <th>     </th>
+
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-politique>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="politique"></p-tableCheckbox>
+                        </td>
+                        <td style="width:30%; min-width:10rem;">
+                            {{politique.nomPolitique}}
+                        </td>
+                        <td style="width:30%; min-width:10rem;">
+                            {{politique.descriptionPolitique}}
+                        </td>
+                        <td style="width:30%; min-width:10rem;">
+                            {{politique.nombreJourOuvrable}}
+                        </td>
+                        <td style="width:30%; height:max-content">
+                            <p-dropdown [options]="getEmployeeDropdownOptions(politique.idPolitique)"
+                                placeholder="Liste des employés"></p-dropdown>
+                        </td>
+
+                        <td style="width:30%; min-width:10rem;">
+                            <p-button label="les jours fériés" styleClass="p-button-link" ></p-button>
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editPolitique(politique)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                    (click)="deletePolitique(politique.idPolitique)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="politiqueDialog" [style]="{width: '450px'}" header="Ajouter Politiques" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="name"><strong>Nom de politique</strong></label>
+                    <span class="p-float-label">
+                        <input id="float-input" [(ngModel)]="politique.nomPolitique" type="text" pInputText>
+                    </span>
+                </div>
+                <div class="field">
+                    <label for="description"><strong>Description</strong></label>
+                    <textarea id="description" pInputTextarea [(ngModel)]="politique.descriptionPolitique" required
+                        rows="3" cols="20"></textarea>
+                </div>
+                <div class="field">
+                    <label for="name"><strong>Nombre de Jours Ouvrable </strong></label>
+                    <span class="p-float-label">
+                        <input id="float-input" [(ngModel)]="politique.nombreJourOuvrable" type="number" pInputText>
+                    </span>
+                </div>
+
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-text"
+                    (click)="savePolitique()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deletePolitiqueDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="politique">Etes-vous sûr(e) de vouloir annuler ce politique <b></b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Non"
+                    (click)="deletePolitiqueDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Oui"
+                    (click)="confirmDelete(politique.idPolitique)"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deletePolitiquesDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Are you sure you want to delete selected products?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deletePolitiquesDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+
+<div class="col-12">
+    <div class="card">
+        <p-toast></p-toast>
+        <p-toolbar styleClass="mb-4">
+            <ng-template pTemplate="left">
+                <h5 class="m-0">Calendrier des congés
+                </h5>
+            </ng-template>
+            <ng-template pTemplate="right">
+            </ng-template>
+        </p-toolbar>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12">
+                <p-calendar class="max-w-full" [inline]="true" (onSelect)="onDateSelect($event)">
+                    <ng-template pTemplate="date" let-date>
+                        <span [ngStyle]="{ color: isDateDecorated(date) ? '#012169' : 'inherit',
+                    'background-color': isDateDecorated(date) ? '#ADD8E6' : 'transparent',
+                    'border-radius': isDateDecorated(date) ? '50%' : '0',
+                    'display': 'inline-block',
+                    'width': '24px',
+                    'height': '24px',
+                    'text-align': 'center',
+                    'line-height': '24px'
+                     }">  {{ date.day }}
+                        </span>
+                    </ng-template>
+                </p-calendar>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog [(visible)]="EmployeDialog" [modal]="true" [style]="{ width: '40%', 'height': '500px'  }">
+ 
+    <div class="col-12">
+		<div class="card">
+            <span class="p-column-title"> <strong> Les employes qui sont en congé : </strong> </span>
+
+			<p-table [value]="employes"  scrollDirection="both" [scrollable]="true" scrollHeight="400px" styleClass="mt-3" responsiveLayout="scroll">
+				<ng-template pTemplate="header">
+					<tr>
+						<th style="width:200px" pFrozenColumn>Nom</th>
+						
+						<th style="width:200px">Departement</th>
+						<th style="width:200px"></th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-employe>
+					<tr>
+						<td style="width:300px" pFrozenColumn class="font-bold"> {{ employe?.nom}} {{ employe?.prenom }}</td>
+						
+						<td style="width:200px ">{{ employe?.entite}}</td>
+						
+                        <td style="width:200px  ;  color: brown;">{{ employe.role.nomRole}}</td>
+						
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</div>
+    <p-footer>
+        <button pButton type="button" label="Fermer" (click)="EmployeDialog = false"></button>
+    </p-footer>
+</p-dialog>
