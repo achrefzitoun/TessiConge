@@ -8,6 +8,7 @@ import de.jollyday.Holiday;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -87,11 +88,21 @@ public class GestionDeCongeController {
     }
 
     @GetMapping("/exportCongeExcel")
-    public ResponseEntity<?> exportCongeExcel(@RequestParam("dateDebut") String dateD, @RequestParam("dateFin") String dateF) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+    public ResponseEntity<byte[]> exportCongeExcel(
+            @RequestParam(name = "dateDebut", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") String dateD,
+            @RequestParam(name = "dateFin", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") String dateF) {
 
-        LocalDateTime dateDebut = LocalDateTime.parse(dateD, formatter);
-        LocalDateTime dateFin = LocalDateTime.parse(dateF, formatter);
+        LocalDateTime dateDebut = null;
+        LocalDateTime dateFin = null;
+
+        if (dateD != "" && dateF != "") {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            dateDebut = LocalDateTime.parse(dateD, formatter);
+            dateFin = LocalDateTime.parse(dateF, formatter);
+        }
+
+        System.out.println(dateDebut);
+        System.out.println(dateFin);
 
         return congeServices.exportCongeExcel(dateDebut, dateFin);
     }

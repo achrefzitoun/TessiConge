@@ -44,8 +44,9 @@ export class ReponseCongeComponent {
     this.motifAutre = new MotifRefus();
     this.motifAutre.description = 'Autre'
     this.motifAutre.typeMotif = TypeMotif.Autre;
-    //this.id = +this.route.snapshot.queryParamMap.get('id')!;
-    this.id = 90;
+    this.id = +this.route.snapshot.queryParamMap.get('id')!;
+    console.log(this.id)
+    //this.id = 90;
     this.congeServices.getCongeById(this.id).subscribe(conge => {
       this.conge = conge,
       this.demandeur = conge.demandeur,

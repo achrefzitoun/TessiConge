@@ -69,11 +69,9 @@
                         <td>
                             <div class="flex">
                                 <td style="width:30%; min-width:10rem;">
-                                    <p-button label="Traiter le demande" styleClass="p-button-link" ></p-button>
+                                    <p-button label="Traiter le demande" styleClass="p-button-link" [routerLink]="['/gestionconge/ReponseConge']"
+                                    [queryParams]="{ id: conge.idConge }"></p-button>
                                 </td>
-
-                            
-
                             </div>
                         </td>
                     </tr>

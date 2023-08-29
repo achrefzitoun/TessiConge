@@ -18,7 +18,7 @@ export class CrudEmployeeComponent implements OnInit {
 
     employees: Employee[] = [];
 
-    employee: Employee  = {};
+    employee: Employee;
 
     selectedEmployees: Employee[] = [];
 
@@ -53,7 +53,7 @@ export class CrudEmployeeComponent implements OnInit {
     }
 
     openNew() {
-        this.employee = {};
+        this.employee = new Employee();
         this.submitted = false;
         this.EmployeetDialog = true;
     }
@@ -83,7 +83,7 @@ export class CrudEmployeeComponent implements OnInit {
         this.deleteEmployeeDialog = false;
         this.employees = this.employees.filter(val => val.idEmp !== this.employee.idEmp);
         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Employee Deleted', life: 3000 });
-        this.employee = {};
+        this.employee = new Employee();
     }
 
     hideDialog() {
@@ -98,21 +98,21 @@ export class CrudEmployeeComponent implements OnInit {
             if (this.employee.idEmp) {
                 // @ts-ignore
                 this.employee.statut = this.employee.statut.value ? this.employee.statut.value : this.employee.statut;
-                this.employees[this.findIndexById(this.employee.idEmp)] = this.employee;
+             //   this.employees[this.findIndexById(this.employee.idEmp)] = this.employee;
                 this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Employee Updated', life: 3000 });
             } else {
-                this.employee.idEmp = this.createId();
+                /*this.employee.idEmp = this.createId();
                 const generatedUsername = this.generateUsername(this.employee.nom, this.employee.idEmp);
                 this.employee.nom = generatedUsername; // Ajoutez le nom d'utilisateur au nouvel employé
                 // @ts-ignore
                 this.employee.statut = 'Actif'
                 this.employees.push(this.employee);
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Employee Created', life: 3000 });
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Employee Created', life: 3000 });*/
             }
 
             this.employees = [...this.employees];
             this.EmployeetDialog = false;
-            this.employee = {};
+           // this.employee = {};
         }
     }
 
@@ -125,10 +125,10 @@ export class CrudEmployeeComponent implements OnInit {
     findIndexById(id: string): number {
         let index = -1;
         for (let i = 0; i < this.employees.length; i++) {
-            if (this.employees[i].idEmp === id) {
+       /*     if (this.employees[i].idEmp === id) {
                 index = i;
                 break;
-            }
+            }*/
         }
 
         return index;

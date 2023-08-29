@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Conge } from 'src/app/Model/Conge';
 import { Observable } from 'rxjs';
 import { Employee } from 'src/app/Model/Employee';
@@ -7,6 +7,7 @@ import { TypeConge } from 'src/app/Model/TypeConge';
 import { NatureType } from 'src/app/Model/NatureType';
 import { MotifRefus } from 'src/app/Model/MotifRefus';
 import { Autorisation } from 'src/app/Model/Autorisation';
+import { DatePipe } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class CongeServicesService {
     return this.http.get<Employee[]>(`${this.apiUrl}/GetAllEmplyees`);
   }
 
-  getTypeCongebyNature(natureType: NatureType): Observable<TypeConge[]> {
+  getTypeCongebyNatures(natureType: NatureType): Observable<TypeConge[]> {
     return this.http.get<TypeConge[]>(`${this.apiUrl}/getTypeCongebyNature/${natureType}`);
   }
 
@@ -42,7 +43,7 @@ export class CongeServicesService {
 
   getCongeById(idConge: number) {
     const api = 'http://localhost:8081/Tessi/demande';
-    return this.http.get<Conge>(`${api}/getConge?idConge=${idConge}`);
+    return this.http.get<Conge>(`${api}/getConge?id=${idConge}`);
   }
 
   reponseConge(idConge: number, etat: String, motifRefus?: MotifRefus): Observable<any> {
@@ -144,6 +145,24 @@ export class CongeServicesService {
     return this.http.put<any>('http://localhost:8081/Tessi/demande/delegation', formData);
 
   }
+
+  exportExcel(dateDebut: string, dateFin: string): Observable<HttpResponse<ArrayBuffer>> {
+    const params = {
+      dateDebut: dateDebut,
+      dateFin: dateFin
+    };
+
+    const options = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }),
+      responseType: 'arraybuffer' as 'json' // Important pour obtenir les données binaires (arraybuffer)
+    };
+
+    return this.http.get<ArrayBuffer>(`${this.apiUrl}/exportCongeExcel`, { params: params, ...options, observe: 'response' });
+  }
+
 
   exportCongeExcel(): Observable<HttpResponse<Blob>> {
     const headers = new HttpHeaders({ 'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

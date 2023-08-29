@@ -1,16 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { th } from 'date-fns/locale';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
-import { forkJoin } from 'rxjs';
 import { Conge } from 'src/app/Model/Conge';
 import { Employee } from 'src/app/Model/Employee';
 import { MotifRefus } from 'src/app/Model/MotifRefus';
-import { Politique } from 'src/app/Model/Politique';
 import { TypeConge } from 'src/app/Model/TypeConge';
 import { CongeServicesService } from 'src/app/Services/Conge/conge-services.service';
-import { PolitiqueService } from 'src/app/Services/Politique/politique.service';
 import { Product } from 'src/app/demo/api/product';
 
 

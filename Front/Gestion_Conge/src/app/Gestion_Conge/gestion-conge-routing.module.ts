@@ -13,11 +13,13 @@ import { RouterModule } from '@angular/router';
         { path: 'ListDelegation', loadChildren: () => import('./list-delegation/list-delegation.module').then(m => m.ListDelegationModule) },
         { path: 'AffectationConge', loadChildren: () => import('./affectation-conge/affectation-conge.module').then(m => m.AffectationCongeModule) },
         { path: 'ReponseConge', loadChildren: () => import('./reponse-conge/reponse-conge.module').then(m => m.ResponseCongeModule) },
-      //  { path: 'JourFerie', loadChildren: () => import('./gestion-jour-ferie/gestion-jour-ferie.module').then(m => m.GestionJourFerieModule) }, 
+        { path: 'JourFerie', loadChildren: () => import('./gestion-jour-ferie/gestion-jour-ferie.module').then(m => m.GestionJourFerieModule) }, 
         { path: 'JourFerieTn', loadChildren: () => import('./gestion-jour-ferie/gestion-jour-ferie.module').then(m => m.GestionJourFerieModule) },  
         { path: 'JourFerieFr', loadChildren: () => import('./gestion-jour-ferie/gestion-jour-ferie.module').then(m => m.GestionJourFerieModule) },  
         { path: 'Autorisation', loadChildren: () => import('./autorisation/autorisation.module').then(m => m.AutorisationModule) },  
         { path: 'TypeConge', loadChildren: () => import('./gestion-de-type-conge/gestion-de-type-conge.module').then(m => m.GestionDeTypeCongeModule) },
+        { path: 'Export', loadChildren: () => import('./export-excel/export-excel.module').then(m => m.ExportExcelModule) },
+
         { path: '**', redirectTo: '/notfound' }
     ])],
     exports: [RouterModule]

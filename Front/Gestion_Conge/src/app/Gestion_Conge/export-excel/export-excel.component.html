@@ -1,0 +1,33 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Export les congés acceptés : </h5>
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12">
+                    <h6>Congé entre : </h6>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label htmlFor="dateDebut">Date debut: </label>
+                    <p-calendar [(ngModel)]="date1" [showIcon]="true" inputId="icon" dateFormat="dd/mm/yy">
+                    </p-calendar>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label htmlFor="dateDebut">Date fin: </label>
+                    <p-calendar [(ngModel)]="date2" [showIcon]="true" inputId="icon" dateFormat="dd/mm/yy">
+                    </p-calendar>
+                </div>
+                <div class="field col-12">
+                    <p-toolbar styleClass="mb-1">
+                        <ng-template pTemplate="left">
+                            <h6>Les champs sont optionnels.</h6>
+                        </ng-template>
+                        <ng-template pTemplate="right">
+                            <button pButton pRipple label="Exporter" icon="pi pi-check" class="p-button-text"
+                                (click)="exportConge()"></button>
+                        </ng-template>
+                    </p-toolbar>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

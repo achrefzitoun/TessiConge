@@ -10,7 +10,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -21,6 +23,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -326,7 +329,7 @@ public class CongeServices implements ICongeServices {
 
 
     @Override
-    public ResponseEntity<?> exportCongeExcel(LocalDateTime dateDebut, LocalDateTime dateFin) {
+    public ResponseEntity<byte[]> exportCongeExcel(LocalDateTime dateDebut, LocalDateTime dateFin) {
         List<Conge> conges = new ArrayList<>();
         Workbook workbook = new XSSFWorkbook();
 
@@ -336,12 +339,11 @@ public class CongeServices implements ICongeServices {
 
         Map<String, String> responseMap = new HashMap<>();
 
-        if(dateDebut!=null && dateFin!=null){
+        if(dateDebut!=null || dateFin!=null){
             conges.addAll(congeRepository.findByDateDebutBetweenAndEtat(dateDebut, dateFin, Etat.Accepte));
             sheet = workbook.createSheet("Congé accepter" + dateDebut.getMonth() + "-" + dateDebut.getDayOfMonth() + "_" + dateFin.getMonth() + "-" + dateFin.getDayOfMonth());
             fileName = files + "\\Congé_accepter" +  dateDebut.getMonth() + "-" + dateDebut.getDayOfMonth() + "_" + dateFin.getMonth() + "-" + dateFin.getDayOfMonth() + ".xlsx";
         }
-
         else {
             conges.addAll(congeRepository.findByEtat(Etat.Accepte));
             sheet = workbook.createSheet("Tous les congé accepter");
@@ -378,16 +380,18 @@ public class CongeServices implements ICongeServices {
             }
         }
 
-        try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
+            byte[] contents = outputStream.toByteArray();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", fileName);
+            return new ResponseEntity<>(contents, headers, HttpStatus.OK);
         } catch (IOException e) {
-             e.printStackTrace();
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        String rep = "Le fichier est enregistré";
-        responseMap.put("message", rep);
-        return new ResponseEntity<>(responseMap, HttpStatus.OK);
-
     }
 
     @Override

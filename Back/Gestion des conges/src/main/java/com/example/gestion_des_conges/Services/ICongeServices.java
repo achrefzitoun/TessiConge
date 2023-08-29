@@ -19,7 +19,7 @@ public interface ICongeServices {
     public void sendEmail(Mail mail, String templateName) throws MessagingException, IOException;
 
     //Excel
-    public ResponseEntity<?> exportCongeExcel(LocalDateTime DateDebut, LocalDateTime DateFin);
+    public ResponseEntity<byte[]>  exportCongeExcel(LocalDateTime DateDebut, LocalDateTime DateFin);
 
     public ResponseEntity<?> getAutorisation(Autorisation autorisation);
 

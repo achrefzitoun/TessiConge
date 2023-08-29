@@ -12,7 +12,6 @@ import org.springframework.web.cors.CorsConfiguration;
 @EnableJpaRepositories
 @EnableScheduling
 @Import(CorsConfiguration.class)
-
 public class GestionDesCongesApplication {
 
     public static void main(String[] args) {

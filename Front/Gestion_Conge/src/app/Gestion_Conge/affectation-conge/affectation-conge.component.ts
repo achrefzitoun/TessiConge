@@ -100,7 +100,7 @@ export class AffectationCongeComponent {
   getType() {
     var natureCongeValue: NatureType = NatureType[this.valNature as keyof typeof NatureType];
     setTimeout(() => {
-      this.congeServices.getTypeCongebyNature(natureCongeValue).subscribe(data => this.typesConges = data);
+      this.congeServices.getTypeCongebyNatures(natureCongeValue).subscribe(data => this.typesConges = data);
     });
     
     this.jourFerieServices.getJourFerieByPolitique(this.employee.politique.idPolitique).subscribe(data => {

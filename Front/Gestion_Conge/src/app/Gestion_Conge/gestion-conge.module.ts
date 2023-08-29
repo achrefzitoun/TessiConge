@@ -4,7 +4,7 @@ import { GestionCongeRoutingModule } from './gestion-conge-routing.module';
 
 @NgModule({
     declarations: [
-  ],
+    ],
     imports: [
         CommonModule,
         GestionCongeRoutingModule

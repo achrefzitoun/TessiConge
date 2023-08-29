@@ -7,9 +7,7 @@
                     <div class="my-2">
                         <button pButton pRipple label="Ajouter" icon="pi pi-plus" class="p-button-success mr-2"
                             (click)="openNew()"></button>
-                        <button pButton pRipple label="Supprimer" icon="pi pi-trash" class="p-button-danger"
-                            (click)="deleteSelectedPolitiques()"
-                            [disabled]="!selectedPolitiques || !selectedPolitiques.length"></button>
+                  
                     </div>
                 </ng-template>
 
@@ -30,9 +28,7 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 3rem">
-                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                        </th>
+                        
                         <th pSortableColumn="nomPolitique"> Nom <p-sortIcon field="nomPolitique"></p-sortIcon></th>
                         <th pSortableColumn="descriptionPolitique">Description <p-sortIcon field="descriptionPolitique"></p-sortIcon></th>
                         <th pSortableColumn="nombreJourOuvrable"> Nombre de jours ouvrable <p-sortIcon field="nombreJourOuvrable"></p-sortIcon></th>
@@ -44,9 +40,7 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-politique>
                     <tr>
-                        <td>
-                            <p-tableCheckbox [value]="politique"></p-tableCheckbox>
-                        </td>
+                    
                         <td style="width:30%; min-width:10rem;">
                             {{politique.nomPolitique}}
                         </td>
@@ -62,15 +56,16 @@
                         </td>
 
                         <td style="width:30%; min-width:10rem;">
-                            <p-button label="les jours fériés" styleClass="p-button-link" ></p-button>
+                            <p-button label="les jours fériés" styleClass="p-button-link" [routerLink]="['/gestionconge/JourFerie']"
+                            [queryParams]="{ id: politique.idPolitique }" ></p-button>
                         </td>
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil"
                                     class="p-button-rounded p-button-success mr-2"
-                                    (click)="editPolitique(politique)"></button>
+                                    (click)="editPolitique(politique)" ></button>
                                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
-                                    (click)="deletePolitique(politique.idPolitique)"></button>
+                                    (click)="deletePolitique(politique.idPolitique)" [disabled]="politique.nomPolitique == 'Tunisienne' || politique.nomPolitique=='Française'"></button>
                             </div>
                         </td>
                     </tr>
@@ -84,7 +79,7 @@
                 <div class="field">
                     <label for="name"><strong>Nom de politique</strong></label>
                     <span class="p-float-label">
-                        <input id="float-input" [(ngModel)]="politique.nomPolitique" type="text" pInputText>
+                        <input id="float-input" [(ngModel)]="politique.nomPolitique" type="text" [disabled]="politique.idPolitique && (politique.nomPolitique == 'Tunisienne' || politique.nomPolitique=='Française')" pInputText>
                     </span>
                 </div>
                 <div class="field">

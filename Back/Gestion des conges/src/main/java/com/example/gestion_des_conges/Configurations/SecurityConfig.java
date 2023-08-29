@@ -18,26 +18,22 @@ public class  SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
+     /*   auth
                 .ldapAuthentication()
                 .userDnPatterns("cn={0}")  // Modèle DN pour la recherche d'utilisateurs
                 .contextSource(contextSource())
                 .passwordCompare()
                 .passwordEncoder(new LdapShaPasswordEncoder())
-                .passwordAttribute("userPassword");
+                .passwordAttribute("userPassword");*/
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+      /*  http
                 .authorizeRequests()
                 .anyRequest()
                 .fullyAuthenticated()              .and()
-                .formLogin();
+                .formLogin();*/
     }
-    @Bean
 
-    public DefaultSpringSecurityContextSource contextSource() {
-        return new DefaultSpringSecurityContextSource(Arrays.asList("ldap://tessiassurance.local"),"dc=tessiassurance, dc=local");
-    }
 
 }
