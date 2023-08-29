@@ -1,0 +1,7 @@
+* La base de données contient des informations nécessaires pour le bon fonctionnement du programme :
+  - Les types de congés 
+  - Les jours feries ( 1 -> 9 )
+  - Les roles ( admin / superviseur / employées )
+  - Les politiques ( tunisienne et francaise )
+
+* La partie LDAP n'est pas encore intégrée dans le travail.
