@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EmplyeeServices implements IEmplyeeServices {
+public class EmployeeServices implements IEmplyeeServices {
     @Autowired
     private final ICongeRepository congeRepository;
 
@@ -34,9 +34,29 @@ public class EmplyeeServices implements IEmplyeeServices {
     private final ITypeCongeRepository typeCongeRepository;
 
     @Override
+    public Employee addEmployee(Employee employee) {
+        return employeeRepository.save(employee);
+    }
+
+    @Override
+    public Employee updateEmployee(Employee employee) {
+        return employeeRepository.save(employee);
+    }
+
+    @Override
+    public void deleteEmployee(int id) {
+        employeeRepository.deleteById(id);
+    }
+
+    @Override
+    public Employee retrieveEmployee(int id) {
+        return null;
+    }
+
+    @Override
     public List<Employee> retrieveAllEmployee() {
-        List<Employee> employees = new ArrayList<>();
-        employeeRepository.findAll().forEach(employees::add);
+        List<Employee> employees = new ArrayList<Employee>();
+        employeeRepository.findAll().forEach(books1 -> employees.add(books1));
         return employees;
     }
 }
