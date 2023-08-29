@@ -1,1 +1,77 @@
-<p>reponse-conge works!</p>
+<div class="col-12">
+    <div class="card">
+        <h5>Conge du :</h5>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12">
+                <p-fieldset legend="{{demandeur.nom}} {{demandeur.prenom}}" class="line-height-3 m-0">
+                    <h6>Type de conge : </h6>{{conge.typeConge.nomType}}
+
+                    <h6>description : </h6>{{conge.description}}
+                    <div *ngIf="conge.pieceJointe !== null">
+                        <br>
+                        <h6>description : </h6>
+                        <div class="text-center">
+                        <p-image src="data:image/png;base64,{{conge.pieceJointe}}" alt="Image" width="500px"
+                            height="200px" [preview]="true"></p-image></div>
+
+                    </div>
+                </p-fieldset>
+            </div>
+            <div class="field col-12">
+                <h4>Réponse : </h4>
+                <div class="field col-12" *ngIf="conge.etat != 'Annule'">
+                    <label htmlFor="etat">
+                        <h6>Etat du congé :</h6>
+                    </label>
+                    <p-selectButton [options]="etat" [(ngModel)]="conge.etat"
+                        [ngStyle]="{'background-color': conge.etat === 'Annule' ? 'red' : 'initial'}"></p-selectButton>
+                </div>
+                <div class="field col-12" *ngIf="conge.etat == 'Annule'">
+                    <label htmlFor="etat">
+                        <h6>Etat du congé :</h6>
+                    </label>
+                    <p-selectButton [options]="annule" [(ngModel)]="conge.etat"></p-selectButton>
+                    <h4 style="color: red; text-align: center;">Le conge est deja annulé par le demandeur</h4>
+                </div>
+                <div *ngIf="conge.etat == 'Refuse'">
+                    <div class="field col-12 ">
+                        <label htmlFor="type">
+                            <h6>Motif de refus :</h6>
+                        </label>
+                        <p-dropdown [options]="motifRefus" optionLabel="description" [(ngModel)]="motif"></p-dropdown>
+                    </div>
+                </div>
+                <div *ngIf="motif && motif.typeMotif == 'Autre' && conge.etat == 'Refuse'">
+                    <div class="field col-12 ">
+                        <label htmlFor="description ">Description</label>
+                        <textarea rows="3" cols="2000" placeholder="Votre message" [(ngModel)]="description"
+                            pInputTextarea></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="field col-12">
+                <p-toolbar styleClass="mb-1">
+                    <ng-template pTemplate="left">
+                        <h6>La réponse à votre congé sera traitée dans les plus brefs délais.</h6>
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"></button>
+                        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="save()"
+                            [disabled]="conge.etat == 'En_Attente' || (conge.etat == 'Refuse' && motif.typeMotif == 'Autre' && description == '')"></button>
+                    </ng-template>
+                </p-toolbar>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<p-dialog header="Dialog" [(visible)]="mess" [modal]="true" showEffect="fade" [style]="{width: '30vw'}"
+    [breakpoints]="{'960px': '75vw'}">
+    <p class="line-height-3 m-0">
+        {{ message }}
+    </p>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-check" (click)="mess=false" label="Ok" class="p-button-outlined"></button>
+    </ng-template>
+</p-dialog>

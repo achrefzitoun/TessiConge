@@ -13,6 +13,6 @@ public interface IRoleServices {
     public void deleteRole(int id);
     public Role retrieveRole(int id);
     public List<Role> retrieveAllRoles();
-    public List<Employee> retrieveEmployeesByRole(Role role);
+    public List<Employee> retrieveEmployeesByRole(int id);
     public Map<String, Integer> countEmployeesByRole();
 }

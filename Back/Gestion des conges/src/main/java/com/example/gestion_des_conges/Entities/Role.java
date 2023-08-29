@@ -21,6 +21,7 @@ public class Role implements Serializable {
 
     String nomRole;
 
+    @Column(columnDefinition = "TEXT")
     String description;
 
     @OneToMany(mappedBy = "role")

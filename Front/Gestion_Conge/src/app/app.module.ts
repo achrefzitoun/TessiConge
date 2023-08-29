@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { HashLocationStrategy, LocationStrategy, DatePipe } from '@angular/common';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppLayoutModule } from './layout/app.layout.module';
@@ -11,8 +11,6 @@ import { EventService } from './demo/service/event.service';
 import { IconService } from './demo/service/icon.service';
 import { NodeService } from './demo/service/node.service';
 import { PhotoService } from './demo/service/photo.service';
-import { ReponseCongeComponent } from './Gestion_Conge/reponse-conge/reponse-conge.component';
-import { AffectationCongeComponent } from './Gestion_Conge/affectation-conge/affectation-conge.component';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -27,7 +25,7 @@ import { HttpClientModule } from '@angular/common/http';
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         CountryService, CustomerService, EventService, IconService, NodeService,
-        PhotoService, ProductService
+        PhotoService, ProductService, DatePipe
     ],
     bootstrap: [AppComponent]
 })

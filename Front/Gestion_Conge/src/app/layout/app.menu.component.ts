@@ -9,11 +9,11 @@ import { LayoutService } from './service/app.layout.service';
 export class AppMenuComponent implements OnInit {
 
     model: any[] = [];
-
+    queryParams: any;
     constructor(public layoutService: LayoutService) { }
 
     ngOnInit() {
-        
+
         this.model = [
             {
                 label: 'Home',
@@ -22,7 +22,32 @@ export class AppMenuComponent implements OnInit {
                 ]
             },
             {
-                label: 'UI Components',
+                label: 'Gestion de congé',
+                items: [
+                    { label: 'Congé', icon: 'pi pi-fw pi-calendar', routerLink: ['/gestionconge/ReponseConge'] },
+                    { label: 'Autorisation', icon: 'pi pi-fw pi-calendar', routerLink: ['/gestionconge/Autorisation'] },
+                    { label: 'List des congés', icon: 'pi pi-fw pi-calendar', routerLink: ['/gestionconge/ReponseConge'] },
+                    { label: 'Affecter un congé', icon: 'pi pi-fw pi-reply', routerLink: ['/gestionconge/AffectationConge'] },
+                    { label: 'Gestion des types de congés', icon: 'pi pi-fw pi-book', routerLink: ['/gestionconge/TypeConge'] },
+                ]
+            },
+            {
+                label: 'Gestion des roles',
+                items: [
+                    { label: 'List des roles', icon: 'pi pi-fw pi-briefcase', routerLink: ['/gestionroles/view'] },
+
+                ]
+            },
+            {
+                label: 'Gestion des jours fériés',
+                items: [
+                    { label: 'Calendrier tunisienne', icon: 'pi pi-fw pi-calendar', routerLink: ['/gestionconge/JourFerieTn'], queryParams: { id: 1 } },
+                    { label: 'Calendrier française', icon: 'pi pi-fw pi-calendar', routerLink: ['/gestionconge/JourFerieFr'], queryParams: { id: 2 } },
+                ]
+
+            },
+            {
+                label: 'Gestion des roles',
                 items: [
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
                     { label: 'Input', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
@@ -43,7 +68,7 @@ export class AppMenuComponent implements OnInit {
                 ]
             },
             {
-                label: 'Prime Blocks',
+                label: 'Gestion de jour ferié',
                 items: [
                     { label: 'Free Blocks', icon: 'pi pi-fw pi-eye', routerLink: ['/blocks'], badge: 'NEW' },
                     { label: 'All Blocks', icon: 'pi pi-fw pi-globe', url: ['https://www.primefaces.org/primeblocks-ng'], target: '_blank' },

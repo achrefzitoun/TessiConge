@@ -18,4 +18,5 @@ export class Employee {
     listDemande: Conge[];
     listValidation: Conge[];
     politique: Politique;
+    nomComplete: string;
   }

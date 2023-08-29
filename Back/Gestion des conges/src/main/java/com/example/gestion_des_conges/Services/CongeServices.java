@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -23,7 +24,9 @@ import javax.mail.internet.MimeMessage;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -53,6 +56,9 @@ public class CongeServices implements ICongeServices {
     private final ITypeCongeRepository typeCongeRepository;
 
     @Autowired
+    private final IAutorisationRepository autorisationRepository;
+
+    @Autowired
     private JavaMailSender mailSender;
 
     @Autowired
@@ -76,8 +82,9 @@ public class CongeServices implements ICongeServices {
     }
 
     @Override
-    public ResponseEntity<String> reponseConge(int idConge, Etat etat/*, Principal principal*/, MotifRefus motifRefus) throws MessagingException {
+    public ResponseEntity<?> reponseConge(int idConge, Etat etat/*, Principal principal*/, MotifRefus motifRefus) throws MessagingException {
         Conge conge = congeRepository.findById(idConge).orElse(null);
+        Map<String, String> responseMap = new HashMap<>();
 
         if(conge!=null){
 
@@ -87,32 +94,51 @@ public class CongeServices implements ICongeServices {
             Employee validateur = employeeRepository.findById(1).orElse(null);
 
             if(conge.getEtat().toString().equals(Etat.Annule.toString())){
-                return new ResponseEntity<>("Congé est déja annulé .", HttpStatus.BAD_REQUEST);
+                String rep = "Congé est déja annulé .";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
             }
+
             if(!conge.getEtat().equals(Etat.En_Attente)){
-                return new ResponseEntity<>("La réponse est déja envoyée  .", HttpStatus.BAD_REQUEST);
+                String rep = "La réponse est déja envoyée  .";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
             }
+
             if(demandeur == null || validateur == null){
-                return new ResponseEntity<>("Mauvaise demande.", HttpStatus.BAD_REQUEST);
+                String rep = "Mauvaise demande.";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
             }
+
             if(demandeur.getSuperviseur()!=validateur){
-                return new ResponseEntity<>("L'employée n'est pas dans votre entité.", HttpStatus.BAD_REQUEST);
+                String rep = "L'employée n'est pas dans votre entité.";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
             }
+
             if (!validateur.getRole().getNomRole().equals("admin") && !validateur.getRole().getNomRole().equals("superviseur")) {
-                return new ResponseEntity<>("Accès refusé. Vous n'avez pas les permissions nécessaires.", HttpStatus.FORBIDDEN);
+                String rep = "Accès refusé. Vous n'avez pas les permissions nécessaires.";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
             }
 
             if(etat==null || etat.toString().equals("En_Attente")){
-                return new ResponseEntity<>("Donner la nouvelle état du congé.", HttpStatus.BAD_REQUEST);
+                String rep = "Donner la nouvelle état du congé.";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
             }
 
             if(etat.toString().equals("Refuse")){
-                if(motifRefus==null){
-                    return new ResponseEntity<>("Réponse non valide. Vous n'avez pas donner le motif de refus.", HttpStatus.BAD_REQUEST);
+                if(motifRefus.getTypeMotif()==null){
+                    String rep = "Réponse non valide. Vous n'avez pas donner le motif de refus.";
+                    responseMap.put("message", rep);
+                    return new ResponseEntity<>(responseMap, HttpStatus.OK);
                 }
+
                 if (motifRefus.getIdMotif() != null) {
                     if(motifRefusRepository.findById(motifRefus.getIdMotif()).isPresent()){
-                        motifRefus= motifRefusRepository.findById(motifRefus.getIdMotif()).get();
+                        motifRefus = motifRefusRepository.findById(motifRefus.getIdMotif()).get();
                         if(motifRefus.getConge().isEmpty()){
                             List<Conge> c = new ArrayList<>();
                             c.add(conge);
@@ -128,18 +154,36 @@ public class CongeServices implements ICongeServices {
                     return new ResponseEntity<>("Donner une description de refus.", HttpStatus.BAD_REQUEST);
                 }
 
+                if (motifRefus.getTypeMotif() == null ) {
+                    motifRefus.setTypeMotif(TypeMotif.Autre);
+                }
+
                 motifRefusRepository.save(motifRefus);
                 conge.setMotifRefus(motifRefus);
             }
 
-            if (motifRefus.getTypeMotif() == null ) {
-                motifRefus.setTypeMotif(TypeMotif.Autre);
+            if(etat.toString().equals("Accepte")){
+                if(conge.getTypeConge().getNatureType().equals(NatureType.Normale)){
+                    Duration duree = Duration.between(conge.getDateDebut(), conge.getDateFin());
+
+                    if(demandeur.getSoldeConge()-duree.toDays()<0){
+                        String rep = "Solde du conge de ce employee est insuffisant.";
+                        responseMap.put("message", rep);
+                        return new ResponseEntity<>(responseMap, HttpStatus.OK);
+                    }
+                    if(duree.toDays()!=0){
+                        demandeur.setSoldeConge(demandeur.getSoldeConge()-(duree.toDays()-calculSoldeConge(conge.getIdConge())));
+                    }
+                    else {
+                        demandeur.setSoldeConge(demandeur.getSoldeConge()-0.5);
+                    }
+                    employeeRepository.save(demandeur);
+                }
             }
 
             conge.setDateValidation(LocalDateTime.now());
             conge.setEtat(etat);
             conge.setValidateur(validateur);
-
             congeRepository.save(conge);
 
             ///////////////////////////////////// Mail validation (Mail Validation) + Mail de refus (Mail Refus)
@@ -159,48 +203,76 @@ public class CongeServices implements ICongeServices {
             mail.setProps(model);
 
             if(etat.toString().equals(Etat.Accepte.toString())){
-                sendEmail(mail, "EmailValidation.html");
+              //  sendEmail(mail, "EmailValidation.html");
             }
             else if(etat.toString().equals(Etat.Refuse.toString())){
                 model.put("motifrefus",motifRefus.getDescription());
-                sendEmail(mail, "EmailRefus.html");
+              //  sendEmail(mail, "EmailRefus.html");
             }
 
-            return new ResponseEntity<>("Conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom()
-                    +" est : " + etat.toString() , HttpStatus.OK);
-        }
+            String rep = "Conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom() +" est " + etat.toString() ;
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
 
+        }
         else {
-            return new ResponseEntity<>("Conge indisponnible.", HttpStatus.BAD_REQUEST);
+            String rep = "Conge indisponnible.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
         }
     }
 
     @Override
-    public ResponseEntity<String> affectationConge(Conge conge, int idDemandeur,/* Principal principal, */int idTypeConge) throws MessagingException, IOException {
+    public ResponseEntity<?> affectationConge(Conge conge, int idDemandeur,/* Principal principal, */int idTypeConge) throws MessagingException, IOException {
         //Employee validateur = employeeRepository.findEmployeeByUsername(principal.getName());
         Employee validateur = employeeRepository.findById(1).orElse(null);
         Employee demandeur = employeeRepository.findById(idDemandeur).orElse(null);
         TypeConge typeConge = typeCongeRepository.findById(idTypeConge).orElse(null);
 
+        Map<String, String> responseMap = new HashMap<>();
+
         if (!validateur.getRole().getNomRole().equals("admin") && !validateur.getRole().getNomRole().equals("superviseur")) {
-            return new ResponseEntity<>("Accès refusé. Vous n'avez pas les permissions nécessaires.", HttpStatus.FORBIDDEN);
+            String rep = "Accès refusé. Vous n'avez pas les permissions nécessaires.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
         }
+
         if(conge==null){
-            return new ResponseEntity<>("Mauvaise demande.", HttpStatus.BAD_REQUEST);
+            String rep = "Mauvaise demande.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
         }
+
         if(demandeur== null){
-            return new ResponseEntity<>("Donner un demandeur du congé.", HttpStatus.BAD_REQUEST);
+            String rep = "Donner un demandeur du congé.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
         }
+
         if(typeConge== null){
-            return new ResponseEntity<>("Donner le type de congé.", HttpStatus.BAD_REQUEST);
+            String rep = "Donner le type de congé.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
         }
+
         if(!demandeur.getPolitique().getTypeConge().contains(typeConge)){
-            return new ResponseEntity<>("Ce employée ne peux pas bénéficer de ce type de congé.", HttpStatus.BAD_REQUEST);
+            String rep = "Ce employée ne peux pas bénéficer de ce type de congé.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+        }
+
+        if(!checkDisponibilite(demandeur,conge.getDateDebut().toLocalDate(),conge.getDateFin().toLocalDate())){
+            String rep = "Ce employée a un congé dans ces dates.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
         }
 
         conge.setEtat(Etat.En_Attente);
         conge.setDemandeur(demandeur);
         conge.setTypeConge(typeConge);
+        congeRepository.save(conge);
+        float f = Duration.between(conge.getDateDebut(), conge.getDateFin()).toDays()-calculSoldeConge(conge.getIdConge());
+        conge.setDuree(f);
         congeRepository.save(conge);
 
         ///////////////////////////////////////////////// Mail confirmation au demandeur (Mail Confirmation)
@@ -208,54 +280,61 @@ public class CongeServices implements ICongeServices {
         Mail maildemandeur = new Mail();
 
         maildemandeur.setFrom("achref.zitoun@esprit.tn");
-        maildemandeur.setMailTo(demandeur.getEmail());
         maildemandeur.setSubject("Demande de congé");
 
         Map<String, Object> modeldemandeur = new HashMap<>();
 
         modeldemandeur.put("demandeur", demandeur.getNom() + " " + demandeur.getPrenom());
-        modeldemandeur.put("duree", Duration.between(conge.getDateDebut(), conge.getDateFin()).toDays());
+        modeldemandeur.put("duree", f);
         modeldemandeur.put("datedebut", conge.getDateDebut());
         modeldemandeur.put("datefin", conge.getDateFin());
         maildemandeur.setProps(modeldemandeur);
 
-        if(demandeur.getEmail()!=null){
-            sendEmail(maildemandeur, "EmailConfirmation.html");
-        }
+        /* if(demandeur.getEmail()!=null){
+            maildemandeur.setMailTo(demandeur.getEmail());
+           sendEmail(maildemandeur, "EmailConfirmation.html");
+        }*/
 
         ///////////////////////////////////////////////// Mail information au validateur (Mail Information)
+        if(demandeur.getSuperviseur()!=null){
+            Mail mailvalidateur = new Mail();
 
-        Mail mailvalidateur = new Mail();
+            mailvalidateur.setFrom("achref.zitoun@esprit.tn");
+            mailvalidateur.setSubject("Demande de congé : " + demandeur.getNom() + " " + demandeur.getPrenom());
 
-        mailvalidateur.setFrom("achref.zitoun@esprit.tn");
-        mailvalidateur.setMailTo(demandeur.getSuperviseur().getEmail());
-        mailvalidateur.setSubject("Demande de congé : " + demandeur.getNom() + " " + demandeur.getPrenom());
+            Map<String, Object> modelvalidateur = new HashMap<String, Object>();
 
-        Map<String, Object> modelvalidateur = new HashMap<String, Object>();
+            modelvalidateur.put("superviseur", demandeur.getSuperviseur().getNom() + " " + demandeur.getSuperviseur().getPrenom());
+            modelvalidateur.put("demandeur", demandeur.getNom() + " " + demandeur.getPrenom());
+            modelvalidateur.put("duree", Duration.between(conge.getDateDebut(), conge.getDateFin()).toDays());
+            modelvalidateur.put("datedebut", conge.getDateDebut());
+            modelvalidateur.put("datefin", conge.getDateFin());
+            mailvalidateur.setProps(modelvalidateur);
 
-        modelvalidateur.put("superviseur", demandeur.getSuperviseur().getNom() + " " + demandeur.getSuperviseur().getPrenom());
-        modelvalidateur.put("demandeur", demandeur.getNom() + " " + demandeur.getPrenom());
-        modelvalidateur.put("duree", Duration.between(conge.getDateDebut(), conge.getDateFin()).toDays());
-        modelvalidateur.put("datedebut", conge.getDateDebut());
-        modelvalidateur.put("datefin", conge.getDateFin());
-        mailvalidateur.setProps(modelvalidateur);
-
-        if(demandeur.getSuperviseur().getEmail()!=null) {
-            sendEmail(mailvalidateur, "EmailInformation.html");
+          /*  if(demandeur.getSuperviseur().getEmail()!=null) {
+                mailvalidateur.setMailTo(demandeur.getSuperviseur().getEmail());
+                sendEmail(mailvalidateur, "EmailInformation.html");
+            }*/
         }
 
-        return new ResponseEntity<>("Conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom()
-                +" est enregistré " , HttpStatus.OK);
+        String rep = "conge du : " + conge.getDemandeur().getNom() + " " + conge.getDemandeur().getPrenom()
+                +" est enregistre ";
+        responseMap.put("message", rep);
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
     }
 
+
+
     @Override
-    public ResponseEntity<String> exportCongeExcel(LocalDateTime dateDebut, LocalDateTime dateFin) {
+    public ResponseEntity<?> exportCongeExcel(LocalDateTime dateDebut, LocalDateTime dateFin) {
         List<Conge> conges = new ArrayList<>();
         Workbook workbook = new XSSFWorkbook();
 
         Sheet sheet;
 
         String fileName;
+
+        Map<String, String> responseMap = new HashMap<>();
 
         if(dateDebut!=null && dateFin!=null){
             conges.addAll(congeRepository.findByDateDebutBetweenAndEtat(dateDebut, dateFin, Etat.Accepte));
@@ -266,7 +345,7 @@ public class CongeServices implements ICongeServices {
         else {
             conges.addAll(congeRepository.findByEtat(Etat.Accepte));
             sheet = workbook.createSheet("Tous les congé accepter");
-            fileName = files + " \\Tous_les_congés_accepter"+".xlsx";
+            fileName = files + "\\Tous_les_congés_accepter"+".xlsx";
         }
 
         Row headerRow = sheet.createRow(0);
@@ -305,7 +384,129 @@ public class CongeServices implements ICongeServices {
              e.printStackTrace();
         }
 
-        return new ResponseEntity<>("Le fichier est enregistré" , HttpStatus.OK);
+        String rep = "Le fichier est enregistré";
+        responseMap.put("message", rep);
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
+
     }
+
+    @Override
+    public boolean checkDisponibilite(Employee employee, LocalDate startDate, LocalDate endDate) {
+        for (Conge conge : employee.getListDemande()) {
+            LocalDate startConge = conge.getDateDebut().toLocalDate();
+            LocalDate endConge = conge.getDateFin().toLocalDate();
+
+            if ((startDate.isAfter(startConge) && startDate.isBefore(endConge))
+                    || (endDate.isAfter(startConge) && endDate.isBefore(endConge))
+                    || startDate.isEqual(startConge)
+                    || endDate.isEqual(endConge)) {
+                return false;
+            }
+        }
+        return true;
+    }
+/*
+    @Scheduled(cron = "0 0 1 1 * *")
+    public void updateSoldeCongeEmployees(){
+        List<Employee> employees = new ArrayList<>();
+        employeeRepository.findAll().forEach(employees::add);
+        for (Employee e : employees){
+            e.setSoldeConge((long) (e.getSoldeConge() + 2.17));
+            e.setAutorisationDuration(6);
+            employeeRepository.save(e);
+        }
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    public void updateSoldeAutorisationEmployees(){
+        List<Employee> employees = new ArrayList<>();
+        employeeRepository.findAll().forEach(employees::add);
+        for (Employee e : employees){
+            e.setAutorisationJour(false);
+            employeeRepository.save(e);
+        }
+    }
+*/
+    @Override
+    public ResponseEntity<?> getAutorisation(Autorisation autorisation){
+        Employee employee = employeeRepository.findById(1).orElse(null);
+        Map<String, String> responseMap = new HashMap<>();
+        System.out.println("test");
+        if(employee==null){
+            String rep = "Employee non trouver.";
+            responseMap.put("message", rep);
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+        }
+        else{
+            if(employee.isAutorisationJour()){
+                String rep = "Tu as deja pris une autorisation aujourd'hui .";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
+            }
+            if(employee.getAutorisationDuration()<2 ){
+                String rep = "Solde d'autorisation insuffisant.";
+                responseMap.put("message", rep);
+                return new ResponseEntity<>(responseMap, HttpStatus.OK);
+            }
+        }
+
+        employee.setAutorisationDuration( (employee.getAutorisationDuration() - 2));
+        employee.setAutorisationJour(true);
+        employeeRepository.save(employee);
+        autorisation.setDemandeur(employee);
+        autorisation.setDateFin(autorisation.getDateDebut().plusHours(2));
+        autorisationRepository.save(autorisation);
+
+        String rep = "Autorisation enregistrer avec succées.";
+        responseMap.put("message", rep);
+        System.out.println("test");
+
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
+    }
+
+    @Override
+    public float calculSoldeConge(int idConge){
+        Conge conge = congeRepository.findById(idConge).orElse(null);
+        Employee demandeur = conge.getDemandeur();
+        LocalDateTime dateDebut = conge.getDateDebut();
+        LocalDateTime dateFin = conge.getDateFin();
+        Duration dureeExacte = Duration.between(dateDebut, dateFin);
+
+        List<JourFerie> jourFeries = demandeur.getPolitique().getJourFerie();
+        List<JourFerie> jourInclud = new ArrayList<>();
+        for (JourFerie j : jourFeries) {
+            if (!(dateDebut.isAfter(j.getDateFin().plusDays(2)) || dateFin.isBefore(j.getDateDebut().minusDays(2)))) {
+                jourInclud.add(j);
+            }
+        }
+
+
+        LocalDate currentDate = dateDebut.toLocalDate();
+        long daysToDeduct = 0;
+
+        while (!currentDate.isAfter(dateFin.toLocalDate())) {
+            boolean isWeekend = currentDate.getDayOfWeek() == DayOfWeek.SATURDAY || currentDate.getDayOfWeek() == DayOfWeek.SUNDAY;
+
+            boolean isIncluded = false;
+            for (JourFerie j : jourInclud) {
+                if ((!currentDate.isBefore(j.getDateDebut().toLocalDate()) && !currentDate.isAfter(j.getDateFin().toLocalDate())) || dateDebut.isAfter(j.getDateFin()) || dateFin.isBefore(j.getDateDebut())) {
+                    isIncluded = true;
+                    break;
+                }
+            }
+
+            if (isWeekend || isIncluded) {
+                daysToDeduct++;
+            }
+
+            System.out.println(isWeekend);
+            System.out.println(isIncluded);
+
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return daysToDeduct;
+    }
+
 
 }

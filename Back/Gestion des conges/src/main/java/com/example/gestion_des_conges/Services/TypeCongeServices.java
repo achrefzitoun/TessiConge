@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,15 +32,16 @@ public class TypeCongeServices implements ITypeCongeServices{
 
     @Autowired
     private final IRoleRepository roleRepository;
-
     @Autowired
     private final ITypeCongeRepository typeCongeRepository;
 
+    @Autowired
+    private final PolitiqueServices politiqueServices;
+
     @Override
-    public TypeConge addTypeConge(TypeConge typeConge, int idPolitique) {
+    public TypeConge addTypeConge(TypeConge typeConge, List<Politique> politiques) {
         typeCongeRepository.save(typeConge);
-        Politique politique = politiqueRepository.findById(idPolitique).orElse(null);
-        if(politique!=null){
+        for(Politique politique : politiques){
             if(politique.getTypeConge()==null){
                 List<TypeConge> tConges = new ArrayList<>();
                 tConges.add(typeConge);
@@ -53,10 +55,20 @@ public class TypeCongeServices implements ITypeCongeServices{
         return typeConge;
     }
 
+
     @Override
-    public TypeConge updateTypeConge(TypeConge typeConge, int idPolitique) {
-        Politique politique = politiqueRepository.findById(idPolitique).orElse(null);
-        if(politique!=null){
+    public TypeConge updateTypeConge(TypeConge typeConge, List<Politique> politiques) {
+
+        List<Politique> politiqueList = new ArrayList<>();
+        politiqueRepository.findAll().forEach(politiqueList::add);
+
+        for (Politique p : politiqueList){
+            p.getTypeConge().removeIf(type -> type.getIdTypeConge() == typeConge.getIdTypeConge());
+            politiqueRepository.save(p);
+        }
+
+
+        for(Politique politique : politiques){
             if(politique.getTypeConge()==null){
                 List<TypeConge> tConges = new ArrayList<>();
                 tConges.add(typeConge);
@@ -66,15 +78,32 @@ public class TypeCongeServices implements ITypeCongeServices{
                 politique.getTypeConge().add(typeConge);
             }
             politiqueRepository.save(politique);
-
         }
-        typeCongeRepository.save(typeConge);
-
         return typeConge;
+    }
+
+
+
+    @Override
+    public List<TypeConge> getTypeCongebyNature(NatureType natureType) {
+        return typeCongeRepository.findAllByNatureType(natureType);
     }
 
     @Override
     public void deleteTypeConge(int id) {
+        TypeConge typeConge = typeCongeRepository.findById(id).orElse(null);
+
+
+        List<Politique> politiques = new ArrayList<>();
+        politiqueRepository.findAll().forEach(politiques::add);
+
+        for (Politique p : politiques){
+            if(p.getTypeConge().contains(typeConge)){
+                p.getTypeConge().remove(typeConge);
+                politiqueRepository.save(p);
+            }
+        }
+
         typeCongeRepository.deleteById(id);
     }
 
@@ -89,4 +118,6 @@ public class TypeCongeServices implements ITypeCongeServices{
         typeCongeRepository.findAll().forEach(typeConges::add);
         return typeConges;
     }
+
+
 }

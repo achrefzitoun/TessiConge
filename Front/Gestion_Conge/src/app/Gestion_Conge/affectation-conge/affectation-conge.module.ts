@@ -13,6 +13,22 @@ import { CascadeSelectModule } from 'primeng/cascadeselect';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputTextModule } from 'primeng/inputtext';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { CheckboxModule } from 'primeng/checkbox';
+import { FileDemoRoutingModule } from 'src/app/demo/components/uikit/file/filedemo-routing.module';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { TableModule } from 'primeng/table';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { SidebarModule } from 'primeng/sidebar';
+import { RippleModule } from 'primeng/ripple';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 @NgModule({
     imports: [
@@ -28,7 +44,24 @@ import { InputTextModule } from 'primeng/inputtext';
 		CascadeSelectModule,
 		MultiSelectModule,
 		InputTextareaModule,
-		InputTextModule
+		InputTextModule,
+		ToggleButtonModule,
+		SelectButtonModule,
+		CheckboxModule,
+		FileDemoRoutingModule,
+		FileUploadModule,
+		ToolbarModule,
+		ToastModule,
+		DialogModule,
+		TooltipModule,
+		ButtonModule,
+		OverlayPanelModule,
+		TableModule,
+		ConfirmDialogModule,
+		SidebarModule,
+		RippleModule,
+		ConfirmPopupModule
+
     ],
     declarations: [AffectationCongeComponent]
 })

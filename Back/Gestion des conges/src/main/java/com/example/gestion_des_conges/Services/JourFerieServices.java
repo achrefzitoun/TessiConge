@@ -109,6 +109,7 @@ public class JourFerieServices implements IJourFerieServices {
 
     @Override
     public JourFerie addJourFerie(JourFerie jourFerie) {
+        jourFerie.setAnnee(jourFerie.getDateDebut().getYear());
         return jourFerieRepository.save(jourFerie);
     }
 
@@ -133,5 +134,44 @@ public class JourFerieServices implements IJourFerieServices {
         jourFerieRepository.findAll().forEach(jourFeries::add);
         return jourFeries;
     }
+
+    @Override
+    public List<JourFerie> getJourFerieByPolitique(int idPolitique){
+        Politique politique = politiqueRepository.findById(idPolitique).orElse(null);
+
+        return politique.getJourFerie();
+    }
+
+    @Override
+    public JourFerie getJourFerieByDate(LocalDateTime date) {
+        List<JourFerie> jourFeries = new ArrayList<>();
+        jourFerieRepository.findAll().forEach(jourFeries::add);
+        for(JourFerie j : jourFeries){
+            if ( (j.getDateDebut().isBefore(date) && j.getDateFin().isAfter(date)) || (j.getDateDebut().isEqual(date)) || j.getDateFin().isEqual(date) ){
+                return  j;
+            }
+        }
+
+        return null ;
+    }
+
+    @Override
+    public void assignJourFeriePolitiques(int idPolitique, int idJourFerie){
+        Politique p = politiqueRepository.findById(idPolitique).orElse(null);
+        JourFerie j = jourFerieRepository.findById(idJourFerie).orElse(null);
+
+        if(j.getPolitiques().size()==0){
+            List<Politique> politiques = new ArrayList<>();
+            politiques.add(p);
+            j.setPolitiques(politiques);
+        }
+        else {
+            j.getPolitiques().add(p);
+        }
+
+        jourFerieRepository.save(j);
+
+    }
+
 }
 

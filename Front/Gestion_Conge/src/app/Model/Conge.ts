@@ -10,7 +10,7 @@ export class Conge {
     duree: number;
     etat: string;
     description: string;
-    pieceJointe: string; // You might need to handle byte array conversion to base64 or another suitable format
+    pieceJointe: string;
     idDelegue: number;
     dateValidation: string;
     typeConge: TypeConge;
